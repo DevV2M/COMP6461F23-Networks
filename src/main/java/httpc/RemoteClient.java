@@ -1,11 +1,18 @@
-package ca.concordia;
+package ca.concordia.httpc;
+
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.Scanner;
+
+import static java.util.Arrays.asList;
 
 public class RemoteClient {
     public static void main(String[] args) {
@@ -17,6 +24,27 @@ public class RemoteClient {
         String path = req[2];
         int port = 80;
 
+//        OptionParser parser = new OptionParser();
+//        parser.acceptsAll(asList("host", "h"), "HTTP server hostname")
+//                .withOptionalArg()
+//                .defaultsTo(host);
+//
+//        parser.acceptsAll(asList("port", "p"), "HTTP server listening port")
+//                .withOptionalArg()
+//                .defaultsTo(port);
+//
+//        OptionSet opts = parser.parse(args);
+//
+//        String host = (String) opts.valueOf("host");
+//        int port = Integer.parseInt((String) opts.valueOf("port"));
+//
+//        SocketAddress endpoint = new InetSocketAddress(host, port);
+
+        sendHttp(host, port, type, path);
+
+    }
+
+    public static void sendHttp(String host, int port, String type, String path) {
         String request = "";
 
         if (type.equals("GET")) {
@@ -41,8 +69,7 @@ public class RemoteClient {
                     "\r\n";
 //                    + data;
         }
-
-        try {
+            try {
             // Create a socket and connect to the server
             Socket socket = new Socket(host, port);
 

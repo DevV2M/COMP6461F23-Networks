@@ -1,4 +1,4 @@
-package ca.concordia;
+package ca.concordia.httpc;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
