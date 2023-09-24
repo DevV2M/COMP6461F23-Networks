@@ -4,72 +4,66 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8a6709d5-dfed-46e5-8331-0341695ed943" name="Changes" comment="update POM">
-      <change afterPath="$PROJECT_DIR$/src/main/java/echo/CurlClient.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/curlClientTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+    <list default="true" id="8a6709d5-dfed-46e5-8331-0341695ed943" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/echo/httpClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/echo/httpClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/echo/httpUtility.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/echo/httpUtility.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/target/maven-archiver/pom.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/target/netsample-1.0-SNAPSHOT-jar-with-dependencies.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/target/netsample-1.0-SNAPSHOT.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/target/classes/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/target/classes/.idea/compiler.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/target/classes/.idea/jarRepositories.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/target/classes/.idea/libraries/Maven__ch_qos_logback_logback_classic_1_4_7.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/target/classes/.idea/libraries/Maven__ch_qos_logback_logback_core_1_4_7.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/target/classes/.idea/libraries/Maven__com_googlecode_json_simple_json_simple_1_1_1.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/target/classes/.idea/libraries/Maven__junit_junit_4_13_2.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/target/classes/.idea/libraries/Maven__net_sf_jopt_simple_jopt_simple_5_0_2.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/target/classes/.idea/libraries/Maven__org_hamcrest_hamcrest_core_1_3.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/target/classes/.idea/libraries/Maven__org_slf4j_slf4j_api_2_0_5.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/target/classes/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/target/classes/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/target/classes/.idea/uiDesigner.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/target/classes/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/target/classes/Comp6461-F23_LA1.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/target/classes/ca/concordia/echo/httpClient.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/target/classes/ca/concordia/echo/httpUtility.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/target/classes/main.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/target/classes/out/production/main/ca/concordia/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/target/classes/out/production/main/ca/concordia/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/target/classes/out/production/main/ca/concordia/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/target/classes/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/target/classes/target/classes/pom.xml" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Class" />
-      </list>
-    </option>
-  </component>
-  <component name="FormatOnSaveOptions">
-    <option name="myRunOnSave" value="true" />
-  </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="OptimizeOnSaveOptions">
-    <option name="myRunOnSave" value="true" />
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="useMavenConfig" value="true" />
+      </MavenGeneralSettings>
+    </option>
   </component>
   <component name="ProjectId" id="2VjsvrieZzg1fJFP93TCiBti5gO" />
-  <component name="ProjectLevelVcsManager">
-    <ConfirmationsSetting value="2" id="Add" />
-  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "develop/curl-commands",
-    "last_opened_file_path": "/Users/vithu/Documents/GitHub/COMP6461F23-Networks",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.45721924",
-    "settings.editor.selected.configurable": "actions.on.save",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/vithu/Documents/GitHub/COMP6461F23-Networks&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
-    </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="D:\GitHub\COMP6461F23-Networks\src\main\test" />
-      <recent name="D:\GitHub\COMP6461F23-Networks\src\main" />
-    </key>
-    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
-      <recent name="" />
     </key>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -84,22 +78,9 @@
       <workItem from="1695419776004" duration="216000" />
       <workItem from="1695420003157" duration="18000" />
     </task>
-    <task id="LOCAL-00001" summary="update POM">
-      <option name="closed" value="true" />
-      <created>1695586403221</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1695586403221</updated>
-    </task>
-    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="update POM" />
-    <option name="LAST_COMMIT_MESSAGE" value="update POM" />
   </component>
 </project>
