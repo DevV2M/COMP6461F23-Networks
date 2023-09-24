@@ -13,8 +13,8 @@ public class httpClient {
 //        urlStr = "http://httpbin.org/status/418";
         java.net.URL url = new URL(urlStr);
 
-        int port = url.getPort();
-        if (port == -1) port = url.getDefaultPort();
+        int port = 0;
+        if ((port = url.getPort()) == -1) port = url.getDefaultPort();
 
         String host = url.getHost();
 
@@ -30,8 +30,14 @@ public class httpClient {
 
         // Define headers
         Map<String, String> headers = new HashMap<>();
+
+
 //        get(pathWithQuery, endpoint, headers);
+
         post(pathWithQuery, "httpbin.org",endpoint, headers);
+
+
+
     }
 
     private static void get(String path, SocketAddress address, Map<String, String> headers) {
@@ -72,9 +78,9 @@ public class httpClient {
             String path = "/post";
             BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF8"));
             wr.write("POST " + path + " HTTP/1.0\r\n");
-    //        wr.write("Content-Length: " + data + "\r\n"); // for plain text
+//            wr.write("Content-Length: " + data + "\r\n"); // for plain text
             wr.write("Content-Length: " + data.toJSONString().length() + "\r\n");
-            wr.write("Content-Type: application/json\r\n");
+//            wr.write("Content-Type: application/json\r\n");
             wr.write("\r\n");
 
             wr.write(data.toJSONString());
