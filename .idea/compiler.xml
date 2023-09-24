@@ -7,6 +7,8 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="COMP6461F23-Networks" />
+        <module name="netsample" />
+        <module name="httpc" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
