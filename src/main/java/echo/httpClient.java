@@ -9,8 +9,9 @@ import org.json.simple.JSONObject;
 
 public class httpClient {
     public static void main(String[] args) throws IOException {
-        String urlStr = "http://httpbin.org/get?course=networking&assignment=1";
+//        String urlStr = "http://httpbin.org/get?course=networking&assignment=1";
 //        urlStr = "http://httpbin.org/status/418";
+        String urlStr = "http://httpbin.org/post";
         java.net.URL url = new URL(urlStr);
 
         int port = 0;
@@ -34,8 +35,9 @@ public class httpClient {
 
 //        get(pathWithQuery, endpoint, headers);
 
-        post(pathWithQuery, "httpbin.org",endpoint, headers);
+//        post(pathWithQuery, "httpbin.org",endpoint, headers);
 
+        postFile("./text.txt",host,port);
 
 
     }
@@ -94,4 +96,117 @@ public class httpClient {
             wr.close();
             rd.close();
         }
+
+        public static void postFile(String filePath, String Host, int Port){
+            String serviceUrl = "http://httpbin.org/post";
+
+            String serviceHost = "httpbin.org";
+            int servicePort = 80;
+
+            try (Socket socket = new Socket(serviceHost, servicePort);
+                 OutputStream os = socket.getOutputStream();
+                 FileInputStream fis = new FileInputStream(filePath)) {
+
+                String boundary = "----WebKitFormBoundary" + Long.toHexString(System.currentTimeMillis());
+
+
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                StringBuilder data = new StringBuilder();
+
+                while ((bytesRead = fis.read(buffer)) != -1) {
+                    data.append(new String(buffer, 0, bytesRead));
+                }
+
+                // Data as a single string
+                String allData = data.toString();
+
+
+                // Write the file data as a part of the multipart request
+                StringBuilder requestBodyBuilder = new StringBuilder();
+                requestBodyBuilder.append("--").append(boundary).append("\r\n");
+                requestBodyBuilder.append("Content-Disposition: form-data; name=\"file\"; filename=\"text.txt\"\r\n");
+                requestBodyBuilder.append("Content-Type: application/octet-stream\r\n");
+                requestBodyBuilder.append("\r\n");
+                requestBodyBuilder.append(allData);
+                requestBodyBuilder.append("\r\n").append("--").append(boundary).append("--\r\n");
+                String requestBody = new String(requestBodyBuilder.toString());
+
+                int size = requestBody.getBytes().length;
+
+                String requestHeaders = "POST /post HTTP/1.0\r\n" +
+                        "Host: " + serviceHost + "\r\n" +
+                        "Content-Length: " + size + "\r\n" +
+                        "Content-Type: multipart/form-data; boundary=" + boundary + "\r\n\r\n";
+
+                os.write(requestHeaders.getBytes());
+                os.write(requestBody.getBytes());
+                os.flush();
+
+                // Read and print the response
+                BufferedReader rd = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                String line;
+                while ((line = rd.readLine()) != null) {
+                    System.out.println(line);
+                }
+
+                rd.close();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+//    public static void postFile(String filePath, String serviceHost, int servicePort){
+//        String serviceUrl = "http://httpbin.org/post";
+//
+//        try {
+//            HttpURLConnection connection = (HttpURLConnection) new URL(serviceUrl).openConnection();
+//            connection.setRequestMethod("POST");
+//            connection.setDoOutput(true);
+//
+//            // Set the Content-Type header for file upload
+//            String boundary = "----WebKitFormBoundary" + Long.toHexString(System.currentTimeMillis());
+//            connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+//
+//            // Open the file as an InputStream
+//            try (OutputStream os = connection.getOutputStream();
+//                 FileInputStream fis = new FileInputStream(filePath)) {
+//
+//                // Send the file header
+//                String fileHeader = "--" + boundary + "\r\n" +
+//                        "Content-Disposition: form-data; name=\"file\"; filename=\"temp.txt\"\r\n" +
+//                        "Content-Type: application/octet-stream\r\n\r\n";
+//                os.write(fileHeader.getBytes());
+//
+//                // Send the file content
+//                byte[] buffer = new byte[1024];
+//                int bytesRead;
+//                while ((bytesRead = fis.read(buffer)) != -1) {
+//                    os.write(buffer, 0, bytesRead);
+//                }
+//
+//                // Send the closing boundary
+//                String boundaryEnd = "\r\n--" + boundary + "--\r\n";
+//                os.write(boundaryEnd.getBytes());
+//            }
+//
+//            // Get and print the response
+//            int responseCode = connection.getResponseCode();
+//            if (responseCode == HttpURLConnection.HTTP_OK) {
+//                try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+//                    String inputLine;
+//                    while ((inputLine = in.readLine()) != null) {
+//                        System.out.println(inputLine);
+//                    }
+//                }
+//            } else {
+//                System.err.println("HTTP Error: " + responseCode);
+//            }
+//
+//            connection.disconnect();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 }
