@@ -12,7 +12,6 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="COMP6461F23-Networks" target="1.8" />
       <module name="netsample" target="1.8" />
     </bytecodeTargetLevel>
   </component>
