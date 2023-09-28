@@ -71,6 +71,7 @@ public class httpClient {
             wr.close();
             rd.close();
 
+            
         } catch (IOException e) {
             e.printStackTrace();
         }
