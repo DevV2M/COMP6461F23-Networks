@@ -6,3 +6,7 @@ target/
 out/
 
 .idea/COMP6461F23-Networks.iml
+src/main/java/.idea/vcs.xml
+src/main/java/.idea/java.iml
+src/main/java/.idea/modules.xml
+src/main/java/.idea/workspace.xml

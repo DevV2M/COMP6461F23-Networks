@@ -5,11 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8a6709d5-dfed-46e5-8331-0341695ed943" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/echo/cURLClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/echo/httpClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/echo/httpClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/echo/cURLClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/echo/cURLClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/echo/httpClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/echo/httpLibrary.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/echo/httpUtility.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,7 +66,7 @@
   </component>
   <component name="RunManager">
     <configuration name="LabA1" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" value="echo.httpClient" />
+      <option name="MAIN_CLASS_NAME" value="echo.httpLibrary" />
       <module name="COMP6461F23-Networks" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -109,7 +109,8 @@
       <workItem from="1695586110777" duration="14253000" />
       <workItem from="1695774885908" duration="9859000" />
       <workItem from="1695857353913" duration="1452000" />
-      <workItem from="1695863123953" duration="10237000" />
+      <workItem from="1695863123953" duration="10370000" />
+      <workItem from="1696201524429" duration="11787000" />
     </task>
     <servers />
   </component>
