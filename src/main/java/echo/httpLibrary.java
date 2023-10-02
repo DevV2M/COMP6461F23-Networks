@@ -122,8 +122,6 @@ public class httpLibrary {
         // Data as a single string
         String allData = data.toString();
 
-//        String boundary = "----WebKitFormBoundary" + Long.toHexString(System.currentTimeMillis());
-
         // Write the file data as a part of the multipart request
         StringBuilder requestBodyBuilder = new StringBuilder();
         requestBodyBuilder.append("--").append(boundary).append("\r\n");
@@ -137,10 +135,10 @@ public class httpLibrary {
 
     public static String getRequestHeaderForPostFile(Socket socket, int size, Map<String, String> headers, String boundary) {
 
-//        String boundary = "----WebKitFormBoundary" + Long.toHexString(System.currentTimeMillis());
         StringBuilder requestHeader = new StringBuilder();
         requestHeader.append("POST /post HTTP/1.0\r\n")
                 .append(String.format("Host: %s\r\n", socket.getInetAddress().getHostName()));
+
         // Add custom headers to the request
         for (Map.Entry<String, String> entry : headers.entrySet()) {
             requestHeader.append(entry.getKey()).append(": ").append(entry.getValue()).append("\r\n");
