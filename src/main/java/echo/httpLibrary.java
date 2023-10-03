@@ -4,12 +4,14 @@ import java.io.*;
 import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.json.simple.JSONObject;
 
 public class httpLibrary {
 
-    public static void get(String path, Socket socket, Map<String, String> headers, boolean verbose) {
+    public static void get(String path, Socket socket, Map<String, String> headers, boolean verbose, String outputFilePath) {
 
         try {
             StringBuilder request = new StringBuilder()
@@ -36,6 +38,20 @@ public class httpLibrary {
                 System.out.println(response[0]);
             }
 
+//            if(extractStatusCode(response[0]).compareTo("301") == 0 || extractStatusCode(response[0]).compareTo("302") == 0){
+//                System.out.println("--------------- Redirecting -----------------");
+//                String url = extractLocation(response[0]);
+//                System.out.println("New URL: " +url);
+//                System.out.println("Break Point 2");
+//                get(getPathToResource(url),getSocket(url),headers,verbose);
+//
+//            }
+
+            // Option Task 2: Write response body to file
+            if (outputFilePath != null) {
+                writeResponseBodyToFile(response[1], outputFilePath);
+            }
+
             wr.close();
             rd.close();
 
@@ -45,7 +61,7 @@ public class httpLibrary {
         }
     }
 
-    public static void post(String data, String path, Socket socket, Map<String, String> headers, boolean verbose) throws IOException {
+    public static void post(String data, String path, Socket socket, Map<String, String> headers, boolean verbose, String outputFilePath) throws IOException {
 
         StringBuilder request = new StringBuilder()
                 .append(String.format("POST %s HTTP/1.0\r\n", path))
@@ -72,16 +88,21 @@ public class httpLibrary {
             System.out.println(response[0]);
         }
 
+        // Option Task 2: Write response body to file
+        if (outputFilePath != null) {
+            writeResponseBodyToFile(response[1], outputFilePath);
+        }
+
         wr.close();
         rd.close();
     }
 
-    public static void postFile(String filePath, Socket socket, Map<String, String> headers, Boolean verbose) {
+    public static void postFile(String filePath, Socket socket, Map<String, String> headers, Boolean verbose, String outputFilePath) {
 
         try (OutputStream os = socket.getOutputStream()) {
             String boundary = "----WebKitFormBoundary" + Long.toHexString(System.currentTimeMillis());
             String requestBody = getRequestBodyForPostFile(filePath, boundary);
-            String requestHeader = getRequestHeaderForPostFile(socket,requestBody.getBytes().length,headers, boundary);
+            String requestHeader = getRequestHeaderForPostFile(socket, requestBody.getBytes().length, headers, boundary);
 
             // Post the request with file content
             os.write(requestHeader.getBytes());
@@ -98,6 +119,11 @@ public class httpLibrary {
                 }
             } else {
                 System.out.println(response[0]);
+            }
+
+            // Option Task 2: Write response body to file
+            if (outputFilePath != null) {
+                writeResponseBodyToFile(response[1], outputFilePath);
             }
 
             os.close();
@@ -125,7 +151,7 @@ public class httpLibrary {
         // Write the file data as a part of the multipart request
         StringBuilder requestBodyBuilder = new StringBuilder();
         requestBodyBuilder.append("--").append(boundary).append("\r\n");
-        requestBodyBuilder.append("Content-Disposition: form-data; name=\"file\"; filename=\"text.txt\"\r\n");
+        requestBodyBuilder.append(String.format("Content-Disposition: form-data; name=\"file\"; filename=\"%s\"\r\n", getFileNameFromPath(filePath)));
         requestBodyBuilder.append("Content-Type: application/octet-stream\r\n");
         requestBodyBuilder.append("\r\n");
         requestBodyBuilder.append(allData);
@@ -199,6 +225,72 @@ public class httpLibrary {
             return new Socket(host, port);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static String extractStatusCode(String header) {
+
+        // Define a regular expression pattern to match the status code.
+        Pattern pattern = Pattern.compile("HTTP/\\d+\\.\\d+\\s(\\d+)\\s.*");
+
+        // Use a Matcher to find the pattern in the input text.
+        Matcher matcher = pattern.matcher(header);
+
+        if (matcher.find()) {
+            // Extract and return the matched group (the value of the status code).
+            String statusCode = matcher.group(1);
+            return statusCode;
+        } else {
+            // Return an empty string if the status code is not found.
+            return "";
+        }
+    }
+
+    public static String extractLocation(String header) {
+
+        // Define a regular expression pattern to match the status code.
+        Pattern pattern = Pattern.compile("Location:\\s(\\S+)");
+
+        // Use a Matcher to find the pattern in the response header.
+        Matcher matcher = pattern.matcher(header);
+
+        if (matcher.find()) {
+            // Extract and return the matched group (the value of the Location).
+            String location = matcher.group(1);
+            return location;
+        } else {
+            // Return an empty string if the status code is not found.
+            return "";
+        }
+    }
+
+    public static String getFileNameFromPath(String path) {
+
+        Pattern fileNameRegex = Pattern.compile("([^/\\\\]+)$");
+
+        Matcher fileNameMatcher = fileNameRegex.matcher(path);
+        fileNameMatcher.find();
+        String fileName = fileNameMatcher.group(1);
+        return fileName != null ? fileName : "";
+    }
+
+    public static void writeResponseBodyToFile(String responseBody, String filePath) {
+
+        try {
+            // Create a FileWriter with the specified file path.
+            FileWriter fileWriter = new FileWriter(filePath);
+
+            // Create a BufferedWriter for efficient writing.
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+
+            // Write the string data to the file.
+            bufferedWriter.write(responseBody);
+
+            // Close the BufferedWriter to flush and close the file.
+            bufferedWriter.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

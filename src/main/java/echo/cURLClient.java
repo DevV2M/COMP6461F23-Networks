@@ -20,8 +20,10 @@ public class cURLClient {
 
     // Get
     // httpc get -v -h Content-Type:application/json 'http://httpbin.org/get?course=networking&assignment=1'
-    // httpc get -v 'http://httpbin.org/status/418'
-    // httpc get http://httpbin.org/status/418
+    // httpc get -v http://httpbin.org/status/418
+    // httpc get -v http://httpbin.org/status/418 -o ./teapot.txt
+    // httpc get http://goo.gl/
+    // httpc get https://goo.gl/
 
     // Post in-line data:
     // httpc post -v -h Content-Type:application/json --d '{"Assignment": 1,"Vithu": 1}' http://httpbin.org/post
@@ -29,18 +31,17 @@ public class cURLClient {
     // httpc post -v -h Content-Type:application/json --d 'hello' http://httpbin.org/post
 
     // Post file
-    // httpc post -v -f ./text.txt 'http://httpbin.org/post'
+    // httpc post -v -f ./text.txt 'http://httpbin.org/post' -o postFileTest.txt
 
     // Regular expressions for different types of commands
 
-    // Pattern Group:Value 1:command
     private static String helpPattern = "httpc\\s+help(?:\\s+([a-zA-Z]+))?";
 
     // Pattern Group:Value 1:-v, 2:headers, 3:URL
-    private static String getPattern = "httpc\\s+get\\s+(-v\\s)?+((?:-h\\s+[\\S]+\\s)+)?+'?(http://\\S+[^'])";
+    private static String getPattern = "httpc\\s+get\\s+(-v\\s)?+((?:-h\\s+[\\S]+\\s)+)?+'?(https?://\\S+[^'])+\\s*(?:-o\\s(\\S+\\.txt))?";
 
     // Pattern Group:Value 1:-v, 2:headers, 3:in-line data, 4:file, 5:URL
-    private static String postPattern = "httpc\\s+post\\s+(-v\\s)?+((?:-h\\s+[\\S]+\\s)+)?+(?:--d\\s+'(.*?)'\\s)?+(?:-f\\s+(.*?)\\s)?+'?(http://\\S+[^'])";
+    private static String postPattern = "httpc\\s+post\\s+(-v\\s)?+((?:-h\\s+[\\S]+\\s)+)?+(?:--d\\s+'(.*?)'\\s)?+(?:-f\\s+(.*?)\\s)?+'?(https?://\\S+[^'])+\\s*(?:-o\\s(\\S+\\.txt))?";
 
     // Compile regular expressions
     private static Pattern helpRegex = Pattern.compile(helpPattern);
@@ -71,20 +72,20 @@ public class cURLClient {
         } else if (getMatcher.find()) {
             String verboseFlag = getMatcher.group(1);
             String headerData = getMatcher.group(2);
-            String url = getMatcher.group(3);
-            httpLibrary.get(httpLibrary.getPathToResource(url), httpLibrary.getSocket(url), getHeaders(headerData), (verboseFlag != null));
+            String url = getMatcher.group(3).trim();
+            String outputFile = getMatcher.group(4);
+            httpLibrary.get(httpLibrary.getPathToResource(url), httpLibrary.getSocket(url), getHeaders(headerData), (verboseFlag != null), outputFile);
         } else if (postMatcher.find()) {
             String verboseFlag = postMatcher.group(1);
             String headerData = postMatcher.group(2);
             String inlineData = postMatcher.group(3);
             String fileFlag = postMatcher.group(4);
-            String url = postMatcher.group(5);
-
+            String url = postMatcher.group(5).trim();
+            String outputFile = postMatcher.group(6);
             if (inlineData != null) {
-                httpLibrary.post(inlineData.trim(), httpLibrary.getPathToResource(url), httpLibrary.getSocket(url), getHeaders(headerData), (verboseFlag != null));
+                httpLibrary.post(inlineData.trim(), httpLibrary.getPathToResource(url), httpLibrary.getSocket(url), getHeaders(headerData), (verboseFlag != null), outputFile);
             } else if (fileFlag != null){
-
-                httpLibrary.postFile(fileFlag.trim(), httpLibrary.getSocket(url), getHeaders(headerData), (verboseFlag != null));
+                httpLibrary.postFile(fileFlag.trim(), httpLibrary.getSocket(url), getHeaders(headerData), (verboseFlag != null), outputFile);
             }
         } else {
             System.out.println("Invalid command: " + curlCommand);
