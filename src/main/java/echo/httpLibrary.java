@@ -134,7 +134,7 @@ public class httpLibrary {
         }
     }
 
-    public static String getRequestBodyForPostFile(String filePath, String boundary) throws IOException {
+    private static String getRequestBodyForPostFile(String filePath, String boundary) throws IOException {
 
         FileInputStream fis = new FileInputStream(filePath);
         byte[] buffer = new byte[8192];
@@ -159,7 +159,7 @@ public class httpLibrary {
         return requestBodyBuilder.toString();
     }
 
-    public static String getRequestHeaderForPostFile(Socket socket, int size, Map<String, String> headers, String boundary) {
+    private static String getRequestHeaderForPostFile(Socket socket, int size, Map<String, String> headers, String boundary) {
 
         StringBuilder requestHeader = new StringBuilder();
         requestHeader.append("POST /post HTTP/1.0\r\n")
@@ -175,12 +175,12 @@ public class httpLibrary {
         return requestHeader.toString();
     }
 
-    public static void writeToSocket(BufferedWriter wr, String request) throws IOException {
+    private static void writeToSocket(BufferedWriter wr, String request) throws IOException {
         wr.write(request.toString());
         wr.flush();
     }
 
-    public static String[] readFromSocket(BufferedReader rd) throws IOException {
+    private static String[] readFromSocket(BufferedReader rd) throws IOException {
         String line;
         StringBuilder response = new StringBuilder();
         String[] responseHeaderAndBody = new String[2];
@@ -228,7 +228,7 @@ public class httpLibrary {
         }
     }
 
-    public static String extractStatusCode(String header) {
+    private static String extractStatusCode(String header) {
 
         // Define a regular expression pattern to match the status code.
         Pattern pattern = Pattern.compile("HTTP/\\d+\\.\\d+\\s(\\d+)\\s.*");
@@ -246,7 +246,7 @@ public class httpLibrary {
         }
     }
 
-    public static String extractLocation(String header) {
+    private static String extractLocation(String header) {
 
         // Define a regular expression pattern to match the status code.
         Pattern pattern = Pattern.compile("Location:\\s(\\S+)");
@@ -264,7 +264,7 @@ public class httpLibrary {
         }
     }
 
-    public static String getFileNameFromPath(String path) {
+    private static String getFileNameFromPath(String path) {
 
         Pattern fileNameRegex = Pattern.compile("([^/\\\\]+)$");
 
@@ -274,7 +274,7 @@ public class httpLibrary {
         return fileName != null ? fileName : "";
     }
 
-    public static void writeResponseBodyToFile(String responseBody, String filePath) {
+    private static void writeResponseBodyToFile(String responseBody, String filePath) {
 
         try {
             // Create a FileWriter with the specified file path.

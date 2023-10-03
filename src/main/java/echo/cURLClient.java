@@ -104,17 +104,19 @@ public class cURLClient {
                     "    help    prints this screen.\n" +
                     "Use \"httpc help [command]\" for more information about a command.");
         } else if (type.compareTo("get") == 0) {
-            System.out.println("usage: httpc get [-v] [-h key:value] URL\n" +
+            System.out.println("usage: httpc get [-v] [-h key:value] URL [-o filename]\n" +
                     "Get executes a HTTP GET request for a given URL.\n" +
                     "   -v Prints the detail of the response such as protocol, status, and headers.\n" +
-                    "   -h key:value Associates headers to HTTP Request with the format 'key:value'.\n");
+                    "   -h key:value Associates headers to HTTP Request with the format 'key:value'.\n" +
+                    "   -o write the body of the HTTP response to the specified file instead of console.\n");
         } else if (type.compareTo("post") == 0) {
-            System.out.println("usage: httpc post [-v] [-h key:value] [-d inline-data] [-f file] URL\n" +
+            System.out.println("usage: httpc post [-v] [-h key:value] [-d inline-data] [-f file] URL [-o filename]\n" +
                     "Post executes a HTTP POST request for a given URL with inline data or from file.\n" +
                     "   -v Prints the detail of the response such as protocol, status, and headers.\n" +
                     "   -h key:value Associates headers to HTTP Request with the format 'key:value'.\n" +
                     "   -d string Associates an inline data to the body HTTP POST request.\n" +
                     "   -f file Associates the content of a file to the body HTTP POST request.\n" +
+                    "   -o write the body of the HTTP response to the specified file instead of console.\n" +
                     "Either [-d] or [-f] can be used but not both.");
         }
     }
