@@ -35,17 +35,17 @@ public class httpLibrary {
                     System.out.println(str);
                 }
             } else {
-                System.out.println(response[0]);
+                System.out.println(response[1]);
             }
 
-            if(extractStatusCode(response[0]).compareTo("301") == 0 || extractStatusCode(response[0]).compareTo("302") == 0){
+            if (extractStatusCode(response[0]).compareTo("301") == 0 || extractStatusCode(response[0]).compareTo("302") == 0) {
                 System.out.println("--------------- Redirecting -----------------");
                 String url = extractLocation(response[0]);
 
                 System.out.println("Break Point 2");
 
-                String newURL = "http://"+socket.getInetAddress().getHostName()+url;
-                get(url,getSocket(newURL),headers,verbose, outputFilePath);
+                String newURL = "http://" + socket.getInetAddress().getHostName() + url;
+                get(url, getSocket(newURL), headers, verbose, outputFilePath);
 
             }
 
@@ -88,17 +88,17 @@ public class httpLibrary {
                 System.out.println(str);
             }
         } else {
-            System.out.println(response[0]);
+            System.out.println(response[1]);
         }
 
-        if(extractStatusCode(response[0]).compareTo("301") == 0 || extractStatusCode(response[0]).compareTo("302") == 0){
+        if (extractStatusCode(response[0]).compareTo("301") == 0 || extractStatusCode(response[0]).compareTo("302") == 0) {
             System.out.println("--------------- Redirecting -----------------");
             String url = extractLocation(response[0]);
 
             System.out.println("Break Point 2");
 
-            String newURL = "http://"+socket.getInetAddress().getHostName()+url;
-            post(data, url,getSocket(newURL),headers,verbose, outputFilePath);
+            String newURL = "http://" + socket.getInetAddress().getHostName() + url;
+            post(data, url, getSocket(newURL), headers, verbose, outputFilePath);
 
         }
 
@@ -132,7 +132,7 @@ public class httpLibrary {
                     System.out.println(str);
                 }
             } else {
-                System.out.println(response[0]);
+                System.out.println(response[1]);
             }
 
             // Option Task 2: Write response body to file

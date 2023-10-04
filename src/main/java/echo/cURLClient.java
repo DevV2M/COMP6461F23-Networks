@@ -21,11 +21,11 @@ public class cURLClient {
     // Get
     // httpc get -v -h Content-Type:application/json 'http://httpbin.org/get?course=networking&assignment=1'
     // httpc get -v http://httpbin.org/status/418
+    // httpc get http://httpbin.org/status/418
     // httpc get -v http://httpbin.org/status/418 -o ./teapot.txt
-    // httpc get http://goo.gl/
-    // httpc get https://goo.gl/
 
     // Redirect sample: httpc get -v http://httpbin.org/status/301
+    // httpc get -v http://httpbin.org/status/304
     // Redirect post: httpc post -v --d '{:}' http://httpbin.org/status/301
 
     // Post in-line data:
