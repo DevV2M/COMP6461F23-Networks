@@ -26,7 +26,7 @@ public class cURLClient {
     // httpc get https://goo.gl/
 
     // Redirect sample: httpc get -v http://httpbin.org/status/301
-    // Redirect post: httpc post -v --d '{"Assignment": 1,"Vithu": 1}' http://httpbin.org/status/301
+    // Redirect post: httpc post -v --d '{:}' http://httpbin.org/status/301
 
     // Post in-line data:
     // httpc post -v -h Content-Type:application/json --d '{"Assignment": 1,"Vithu": 1}' http://httpbin.org/post
