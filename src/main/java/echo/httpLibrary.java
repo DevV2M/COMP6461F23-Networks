@@ -38,14 +38,15 @@ public class httpLibrary {
                 System.out.println(response[0]);
             }
 
-//            if(extractStatusCode(response[0]).compareTo("301") == 0 || extractStatusCode(response[0]).compareTo("302") == 0){
-//                System.out.println("--------------- Redirecting -----------------");
-//                String url = extractLocation(response[0]);
-//                System.out.println("New URL: " +url);
-//                System.out.println("Break Point 2");
-//                get(getPathToResource(url),getSocket(url),headers,verbose);
-//
-//            }
+            if(extractStatusCode(response[0]).compareTo("301") == 0 || extractStatusCode(response[0]).compareTo("302") == 0){
+                System.out.println("--------------- Redirecting -----------------");
+                String url = extractLocation(response[0]);
+                System.out.println("New URL: " +url);
+                System.out.println("Break Point 2");
+
+                get(url,getSocket("http://httpbin.org"+url),headers,verbose, outputFilePath);
+
+            }
 
             // Option Task 2: Write response body to file
             if (outputFilePath != null) {
@@ -86,6 +87,16 @@ public class httpLibrary {
             }
         } else {
             System.out.println(response[0]);
+        }
+        System.out.println("HERE");
+        if(extractStatusCode(response[0]).compareTo("301") == 0 || extractStatusCode(response[0]).compareTo("302") == 0){
+            System.out.println("--------------- Redirecting -----------------");
+            String url = extractLocation(response[0]);
+            System.out.println("New URL: " +url);
+            System.out.println("Break Point 2");
+
+            post(data, url,getSocket("http://httpbin.org"+url),headers,verbose, outputFilePath);
+
         }
 
         // Option Task 2: Write response body to file
@@ -249,7 +260,7 @@ public class httpLibrary {
     private static String extractLocation(String header) {
 
         // Define a regular expression pattern to match the status code.
-        Pattern pattern = Pattern.compile("Location:\\s(\\S+)");
+        Pattern pattern = Pattern.compile("[lL]ocation:\\s(\\S+)");
 
         // Use a Matcher to find the pattern in the response header.
         Matcher matcher = pattern.matcher(header);
