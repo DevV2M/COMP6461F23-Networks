@@ -41,10 +41,11 @@ public class httpLibrary {
             if(extractStatusCode(response[0]).compareTo("301") == 0 || extractStatusCode(response[0]).compareTo("302") == 0){
                 System.out.println("--------------- Redirecting -----------------");
                 String url = extractLocation(response[0]);
-                System.out.println("New URL: " +url);
+
                 System.out.println("Break Point 2");
 
-                get(url,getSocket("http://httpbin.org"+url),headers,verbose, outputFilePath);
+                String newURL = "http://"+socket.getInetAddress().getHostName()+url;
+                get(url,getSocket(newURL),headers,verbose, outputFilePath);
 
             }
 
@@ -68,6 +69,7 @@ public class httpLibrary {
                 .append(String.format("POST %s HTTP/1.0\r\n", path))
                 .append(String.format("Content-Length: %s\r\n", data.length()));
 
+        System.out.println();
         // Add custom headers to the request
         for (Map.Entry<String, String> entry : headers.entrySet()) {
             request.append(entry.getKey()).append(": ").append(entry.getValue()).append("\r\n");
@@ -88,14 +90,15 @@ public class httpLibrary {
         } else {
             System.out.println(response[0]);
         }
-        System.out.println("HERE");
+
         if(extractStatusCode(response[0]).compareTo("301") == 0 || extractStatusCode(response[0]).compareTo("302") == 0){
             System.out.println("--------------- Redirecting -----------------");
             String url = extractLocation(response[0]);
-            System.out.println("New URL: " +url);
+
             System.out.println("Break Point 2");
 
-            post(data, url,getSocket("http://httpbin.org"+url),headers,verbose, outputFilePath);
+            String newURL = "http://"+socket.getInetAddress().getHostName()+url;
+            post(data, url,getSocket(newURL),headers,verbose, outputFilePath);
 
         }
 
