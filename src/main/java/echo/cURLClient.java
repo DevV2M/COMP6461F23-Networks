@@ -21,11 +21,11 @@ public class cURLClient {
     // Get
     // httpc get -v -h Content-Type:application/json 'http://httpbin.org/get?course=networking&assignment=1'
     // httpc get -v http://httpbin.org/status/418
+    // httpc get http://httpbin.org/status/418
     // httpc get -v http://httpbin.org/status/418 -o ./teapot.txt
-    // httpc get http://goo.gl/
-    // httpc get https://goo.gl/
 
     // Redirect sample: httpc get -v http://httpbin.org/status/301
+    // httpc get -v http://httpbin.org/status/304
     // Redirect post: httpc post -v --d '{:}' http://httpbin.org/status/301
 
     // Post in-line data:
@@ -35,6 +35,12 @@ public class cURLClient {
 
     // Post file
     // httpc post -v -f ./text.txt 'http://httpbin.org/post' -o postFileTest.txt
+
+    // XTRA - POSTMAN API
+    // the collection
+    // https://www.postman.com/postman/workspace/published-postman-templates/folder/631643-9a4c3bce-30f7-a496-c9ec-78afecbf1545?ctx=documentation
+    // httpc get -v http://postman-echo.com/get?foo1=bar1&foo2=bar2
+    // httpc post -v --d '{:}' http://postman-echo.com/post
 
     // Regular expressions for different types of commands
 
