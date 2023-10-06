@@ -40,7 +40,6 @@
 - `httpc get -v http://httpbin.org/status/418`
 - `httpc get http://httpbin.org/status/418`
 - `httpc get -v http://httpbin.org/status/418 -o ./teapot.txt`
--
 
 ### POST
 
