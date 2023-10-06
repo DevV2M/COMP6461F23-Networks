@@ -1,3 +1,11 @@
+/**
+ * COMP 6461 - Computer Networks and Protocols
+ * Lab Assignment #1
+ * Group Members:
+ * Vithu Maheswaran - 27052715
+ * Shafiq Imtiaz - 40159305
+ */
+
 package echo;
 
 import java.io.*;
@@ -67,6 +75,7 @@ public class httpLibrary {
                 .append(String.format("Content-Length: %s\r\n", data.length()));
 
         System.out.println();
+
         // Add custom headers to the request
         for (Map.Entry<String, String> entry : headers.entrySet()) {
             request.append(entry.getKey()).append(": ").append(entry.getValue()).append("\r\n");
@@ -91,8 +100,6 @@ public class httpLibrary {
         if (extractStatusCode(response[0]).compareTo("301") == 0 || extractStatusCode(response[0]).compareTo("302") == 0) {
             System.out.println("--------------- Redirecting -----------------");
             String url = extractLocation(response[0]);
-
-            System.out.println("Break Point 2");
 
             String newURL = "http://" + socket.getInetAddress().getHostName() + url;
             post(data, url, getSocket(newURL), headers, verbose, outputFilePath);

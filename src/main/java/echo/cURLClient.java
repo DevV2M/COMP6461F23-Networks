@@ -1,3 +1,11 @@
+/**
+ * COMP 6461 - Computer Networks and Protocols
+ * Lab Assignment #1
+ * Group Members:
+ * Vithu Maheswaran - 27052715
+ * Shafiq Imtiaz - 40159305
+ */
+
 package echo;
 
 import java.io.IOException;
