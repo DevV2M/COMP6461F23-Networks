@@ -2,12 +2,9 @@ package echo;
 
 import java.io.*;
 import java.net.*;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.json.simple.JSONObject;
 
 public class httpLibrary {
 

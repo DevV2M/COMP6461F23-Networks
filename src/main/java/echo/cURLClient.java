@@ -7,43 +7,9 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static echo.httpLibrary.postFile;
-
 public class cURLClient {
 
-    // cURL Commands
-
-    // Help
-    // httpc help
-    // httpc help get
-    // httpc help post
-
-    // Get
-    // httpc get -v -h Content-Type:application/json 'http://httpbin.org/get?course=networking&assignment=1'
-    // httpc get -v http://httpbin.org/status/418
-    // httpc get http://httpbin.org/status/418
-    // httpc get -v http://httpbin.org/status/418 -o ./teapot.txt
-
-    // Redirect sample: httpc get -v http://httpbin.org/status/301
-    // httpc get -v http://httpbin.org/status/304
-    // Redirect post: httpc post -v --d '{:}' http://httpbin.org/status/301
-
-    // Post in-line data:
-    // httpc post -v -h Content-Type:application/json --d '{"Assignment": 1,"Vithu": 1}' http://httpbin.org/post
-    // httpc post -v -h Content-Type:application/json --d '{"Assignment": 1,"Vithu": "Student"}' http://httpbin.org/post
-    // httpc post -v -h Content-Type:application/json --d 'hello' http://httpbin.org/post
-
-    // Post file
-    // httpc post -v -f ./text.txt 'http://httpbin.org/post' -o postFileTest.txt
-
-    // XTRA - POSTMAN API
-    // the collection
-    // https://www.postman.com/postman/workspace/published-postman-templates/folder/631643-9a4c3bce-30f7-a496-c9ec-78afecbf1545?ctx=documentation
-    // httpc get -v http://postman-echo.com/get?foo1=bar1&foo2=bar2
-    // httpc post -v --d '{:}' http://postman-echo.com/post
-
     // Regular expressions for different types of commands
-
     private static String helpPattern = "httpc\\s+help(?:\\s+([a-zA-Z]+))?";
 
     // Pattern Group:Value 1:-v, 2:headers, 3:URL
@@ -58,20 +24,16 @@ public class cURLClient {
     private static Pattern postRegex = Pattern.compile(postPattern);
 
     public static void main(String[] args) throws IOException {
-
         Scanner sc = new Scanner(System.in);
         String curlCommand = sc.nextLine().trim();
         runCommand(curlCommand);
-
     }
 
     public static void runCommand(String curlCommand) throws IOException {
-
         // Match the command against each pattern
         Matcher helpMatcher = helpRegex.matcher(curlCommand);
         Matcher getMatcher = getRegex.matcher(curlCommand);
         Matcher postMatcher = postRegex.matcher(curlCommand);
-
 
         // Check which pattern matches and extract relevant information
         if (helpMatcher.find()) {
@@ -93,7 +55,7 @@ public class cURLClient {
             String outputFile = postMatcher.group(6);
             if (inlineData != null) {
                 httpLibrary.post(inlineData.trim(), httpLibrary.getPathToResource(url), httpLibrary.getSocket(url), getHeaders(headerData), (verboseFlag != null), outputFile);
-            } else if (fileFlag != null){
+            } else if (fileFlag != null) {
                 httpLibrary.postFile(fileFlag.trim(), httpLibrary.getSocket(url), getHeaders(headerData), (verboseFlag != null), outputFile);
             }
         } else {
@@ -102,7 +64,6 @@ public class cURLClient {
     }
 
     public static void printHelp(String type) {
-
         if (type.compareTo("") == 0) {
             System.out.println("httpc is a curl-like application but supports HTTP protocol only.\n" +
                     "Usage:\n" +
@@ -131,12 +92,9 @@ public class cURLClient {
     }
 
     public static Map<String, String> getHeaders(String cURLHeaderString) {
-
         Map<String, String> headers = new HashMap<>();
-
         if (cURLHeaderString != null) {
             String[] cURLHeaderData = cURLHeaderString.split("\\s+");
-
             for (String header : cURLHeaderData) {
                 if (header.compareTo("-h") == 0) continue;
                 String[] keyValue = header.split(":");
