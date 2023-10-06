@@ -79,6 +79,13 @@
 In `Intellij`, you can simply open the project and run the application.
 or you can create a JAR file and run it from the command line.
 
+## Using JAR
+
+1. Navigate to the project source directory
+   `cd out/artifacts/httpc_jar`
+2. Run the application using the JAR file
+   `java -jar httpc.jar`
+
 ## Using with Command Line
 
 1. Navigate to the project source directory
