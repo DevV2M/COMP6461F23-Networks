@@ -1,11 +1,14 @@
 package echo;
 
 import java.io.*;
-import java.net.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 public class HttpServer {
 
@@ -35,12 +38,14 @@ public class HttpServer {
                 if (requestTokens.length == 3 && requestTokens[0].equals("GET")) {
                     String requestedPath = requestTokens[1];
                     String acceptHeader = getAcceptHeader(reader);
+                    Path rootDirectory = Paths.get("").toAbsolutePath().normalize(); // Root directory of your project
+                    Path resolvedPath = rootDirectory.resolve(requestedPath).normalize(); // Resolved path of the requested file
+
                     if ("/".equals(requestedPath)) {
-                        List<String> fileList = listFilesInDataDirectory();
+                        List<String> fileList = listFilesInDataDirectory(rootDirectory.toString());
                         String response = generateResponse(fileList, acceptHeader);
                         sendHttpResponse(out, response);
                     } else if (requestedPath.startsWith("/")) {
-                        // Requested file path
                         String filePath = requestedPath.substring(1);
                         System.out.println(filePath);
                         if (Files.exists(Paths.get(filePath))) {
@@ -60,11 +65,18 @@ public class HttpServer {
         }
     }
 
-    private static List<String> listFilesInDataDirectory() {
-        // Replace with the actual logic to list files in your data directory
+    private static List<String> listFilesInDataDirectory(String directoryPath) {
         List<String> fileList = new ArrayList<>();
-        fileList.add("file1.txt");
-        fileList.add("file2.txt");
+        try {
+            Path dir = Paths.get(directoryPath);
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+                for (Path path : stream) {
+                    fileList.add(path.getFileName().toString());
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return fileList;
     }
 
@@ -137,6 +149,11 @@ public class HttpServer {
                 + "\r\n"
                 + response;
         out.write(httpResponse.getBytes());
+    }
+
+    private static void sendForbiddenResponse(OutputStream out) throws IOException {
+        String forbiddenResponse = "HTTP/1.1 403 Forbidden\r\n\r\n";
+        out.write(forbiddenResponse.getBytes());
     }
 
     private static void sendNotFoundResponse(OutputStream out) throws IOException {
