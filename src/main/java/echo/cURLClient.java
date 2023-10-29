@@ -9,6 +9,7 @@
 package echo;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -21,8 +22,8 @@ public class cURLClient {
     private static String helpPattern = "httpc\\s+help(?:\\s+([a-zA-Z]+))?";
 
     // Pattern Group:Value 1:-v, 2:headers, 3:URL
-    private static String getPattern = "httpc\\s+get\\s+(-v\\s)?+((?:-h\\s+[\\S]+\\s)+)?+'?(https?://\\S+[^'])+\\s*(?:-o\\s(\\S+\\.txt))?";
-
+//    private static String getPattern = "httpc\\s+get\\s+(-v\\s)?+((?:-h\\s+[\\S]+\\s)+)?+'?(https?://\\S+[^'])+\\s*(?:-o\\s(\\S+\\.txt))?";
+    private static String getPattern = "httpc\\s+get\\s+(-v\\s)?+((?:-h\\s+[\\S]+\\s)+)?+'?(https?://\\S+[^'])|(/\\S*)+\\s*(?:-o\\s(\\S+\\.txt))?";
     // Pattern Group:Value 1:-v, 2:headers, 3:in-line data, 4:file, 5:URL
     private static String postPattern = "httpc\\s+post\\s+(-v\\s)?+((?:-h\\s+[\\S]+\\s)+)?+(?:--d\\s+'(.*?)'\\s)?+(?:-f\\s+(.*?)\\s)?+'?(https?://\\S+[^'])+\\s*(?:-o\\s(\\S+\\.txt))?";
 
@@ -51,9 +52,18 @@ public class cURLClient {
         } else if (getMatcher.find()) {
             String verboseFlag = getMatcher.group(1);
             String headerData = getMatcher.group(2);
-            String url = getMatcher.group(3).trim();
-            String outputFile = getMatcher.group(4);
-            httpLibrary.get(httpLibrary.getPathToResource(url), httpLibrary.getSocket(url), getHeaders(headerData), (verboseFlag != null), outputFile);
+            String url;
+            Socket clientSocket = null;
+            if(getMatcher.group(3) != null) {
+                url = getMatcher.group(3).trim();
+                clientSocket = httpLibrary.getSocket(url);
+            }
+            else {
+                url = getMatcher.group(4).trim();
+                clientSocket  = new Socket("localhost", 8080);
+            }
+            String outputFile = getMatcher.group(5);
+            httpLibrary.get(httpLibrary.getPathToResource(url), clientSocket, getHeaders(headerData), (verboseFlag != null), outputFile);
         } else if (postMatcher.find()) {
             String verboseFlag = postMatcher.group(1);
             String headerData = postMatcher.group(2);
