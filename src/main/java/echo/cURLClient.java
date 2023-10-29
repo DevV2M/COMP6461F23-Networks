@@ -1,5 +1,6 @@
 package echo;
 
+import javax.swing.plaf.synth.SynthOptionPaneUI;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.HashMap;
@@ -73,6 +74,18 @@ public class cURLClient {
             if (helpMatcher.group(1) != null) {
                 printHelp(helpMatcher.group(1));
             } else printHelp("");
+        } else if (postMatcher.find()) {
+            String verboseFlag = postMatcher.group(1);
+            String headerData = postMatcher.group(2);
+            String inlineData = postMatcher.group(3);
+            String fileFlag = postMatcher.group(4);
+            String url = postMatcher.group(5).trim();
+            String outputFile = postMatcher.group(6);
+            if (inlineData != null) {
+                httpLibrary.post(inlineData.trim(), httpLibrary.getPathToResource(url), httpLibrary.getSocket(url), getHeaders(headerData), (verboseFlag != null), outputFile);
+            } else if (fileFlag != null){
+                httpLibrary.postFile(fileFlag.trim(), httpLibrary.getSocket(url), getHeaders(headerData), (verboseFlag != null), outputFile);
+            }
         } else if (getMatcher.find()) {
             String verboseFlag = getMatcher.group(1);
             String headerData = getMatcher.group(2);
@@ -88,19 +101,7 @@ public class cURLClient {
             }
             String outputFile = getMatcher.group(5);
             httpLibrary.get(httpLibrary.getPathToResource(url), clientSocket, getHeaders(headerData), (verboseFlag != null), outputFile);
-        } else if (postMatcher.find()) {
-            String verboseFlag = postMatcher.group(1);
-            String headerData = postMatcher.group(2);
-            String inlineData = postMatcher.group(3);
-            String fileFlag = postMatcher.group(4);
-            String url = postMatcher.group(5).trim();
-            String outputFile = postMatcher.group(6);
-            if (inlineData != null) {
-                httpLibrary.post(inlineData.trim(), httpLibrary.getPathToResource(url), httpLibrary.getSocket(url), getHeaders(headerData), (verboseFlag != null), outputFile);
-            } else if (fileFlag != null){
-                httpLibrary.postFile(fileFlag.trim(), httpLibrary.getSocket(url), getHeaders(headerData), (verboseFlag != null), outputFile);
-            }
-        } else {
+        }  else {
             System.out.println("Invalid command: " + curlCommand);
         }
     }

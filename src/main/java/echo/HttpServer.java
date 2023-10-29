@@ -53,11 +53,60 @@ public class HttpServer {
                     } else {
                         sendNotFoundResponse(out);
                     }
+                } else if (requestTokens.length == 3 && requestTokens[0].equals("POST")) {
+                    String requestedPath = requestTokens[1];
+
+                    if (requestedPath.startsWith("/")) {
+                        String overwriteOption = getOverwriteOption(reader);
+
+                        // Requested file path
+                        String filePath = requestedPath.substring(1);
+
+                        if (createOrUpdateFile(filePath, reader, overwriteOption)) {
+                            sendCreatedResponse(out);
+                        } else {
+                            sendForbiddenResponse(out);
+                        }
+                    } else {
+                        sendNotFoundResponse(out);
+                    }
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static String getOverwriteOption(BufferedReader reader) throws IOException {
+        String overwriteOption = "false";
+        String line;
+        while ((line = reader.readLine()) != null && !line.isEmpty()) {
+            if (line.startsWith("Overwrite: ")) {
+                overwriteOption = line.substring("Overwrite: ".length());
+                break;
+            }
+        }
+        return overwriteOption;
+    }
+
+    private static boolean createOrUpdateFile(String filePath, BufferedReader reader, String overwriteOption) throws IOException {
+        if ("false".equalsIgnoreCase(overwriteOption) && Files.exists(Paths.get(filePath))) {
+            return false;
+        }
+
+        // Read the content from the request body and write it to the file
+        try (FileOutputStream fos = new FileOutputStream(filePath);
+             OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
+             BufferedWriter writer = new BufferedWriter(osw)) {
+
+            String line;
+            while ((line = reader.readLine()) != null && !line.isEmpty()) {
+                writer.write(line);
+                writer.newLine();
+            }
+        }
+
+        return true;
     }
 
     private static List<String> listFilesInDataDirectory() {
@@ -143,4 +192,15 @@ public class HttpServer {
         String notFoundResponse = "HTTP/1.1 404 Not Found\r\n\r\n";
         out.write(notFoundResponse.getBytes());
     }
+
+    private static void sendCreatedResponse(OutputStream out) throws IOException {
+        String createdResponse = "HTTP/1.1 201 Created\r\n\r\n";
+        out.write(createdResponse.getBytes());
+    }
+
+    private static void sendForbiddenResponse(OutputStream out) throws IOException {
+        String forbiddenResponse = "HTTP/1.1 403 Forbidden\r\n\r\n";
+        out.write(forbiddenResponse.getBytes());
+    }
+
 }
