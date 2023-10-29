@@ -1,11 +1,14 @@
 package echo;
 
 import java.io.*;
-import java.net.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 public class HttpServer {
 
@@ -14,6 +17,10 @@ public class HttpServer {
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server is listening on port " + port);
+
+            // TODO: test listFilesInDataDirectory
+            List<String> test = listFilesInDataDirectory("");
+            System.out.println(test);
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
@@ -36,7 +43,7 @@ public class HttpServer {
                     String requestedPath = requestTokens[1];
                     String acceptHeader = getAcceptHeader(reader);
                     if ("/".equals(requestedPath)) {
-                        List<String> fileList = listFilesInDataDirectory();
+                        List<String> fileList = listFilesInDataDirectory(requestedPath);
                         String response = generateResponse(fileList, acceptHeader);
                         sendHttpResponse(out, response);
                     } else if (requestedPath.startsWith("/")) {
@@ -60,11 +67,20 @@ public class HttpServer {
         }
     }
 
-    private static List<String> listFilesInDataDirectory() {
-        // Replace with the actual logic to list files in your data directory
+    private static List<String> listFilesInDataDirectory(String directoryPath) {
         List<String> fileList = new ArrayList<>();
-        fileList.add("file1.txt");
-        fileList.add("file2.txt");
+        try {
+            Path dir = Paths.get(directoryPath);
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+                for (Path path : stream) {
+                    if (!Files.isDirectory(path)) {
+                        fileList.add(path.getFileName().toString());
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return fileList;
     }
 
