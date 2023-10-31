@@ -35,18 +35,23 @@ public class cURLClient {
     // httpc post -v -h Content-Type:application/json --d '{"Assignment": 1,"Vithu": "Student"}' http://httpbin.org/post
     // httpc post -v -h Content-Type:application/json --d 'hello' http://httpbin.org/post
 
+    // Post in-line data A2
+    // httpc post -v -h overwrite:true --d 'hello' /teapot.txt
+
     // Post file
     // httpc post -v -f ./text.txt 'http://httpbin.org/post' -o postFileTest.txt
 
+    // Post file A2
+    // httpc post -v -f ./teapot.txt /teapot.txt -o postFileTest.txt
     // Regular expressions for different types of commands
 
     private static String helpPattern = "httpc\\s+help(?:\\s+([a-zA-Z]+))?";
 
     // Pattern Group:Value 1:-v, 2:headers, 3:URL
 //    private static String getPattern = "httpc\\s+get\\s+(-v\\s)?+((?:-h\\s+[\\S]+\\s)+)?+'?(https?://\\S+[^'])+\\s*(?:-o\\s(\\S+\\.txt))?";
-    private static String getPattern = "httpc\\s+get\\s+(-v\\s)?+((?:-h\\s+[\\S]+\\s)+)?+'?(https?://\\S+[^'])|(/\\S*)+\\s*(?:-o\\s(\\S+\\.txt))?";
+    private static String getPattern = "httpc\\s+get\\s+(-v\\s)?+((?:-h\\s+[\\S]+\\s)+)?+(?:'?(https?://\\S+[^']))?(?:(/\\S*))?+\\s*(?:-o\\s(\\S+\\.txt))?";
     // Pattern Group:Value 1:-v, 2:headers, 3:in-line data, 4:file, 5:URL
-    private static String postPattern = "httpc\\s+post\\s+(-v\\s)?+((?:-h\\s+[\\S]+\\s)+)?+(?:--d\\s+'(.*?)'\\s)?+(?:-f\\s+(.*?)\\s)?+'?(https?://\\S+[^'])+\\s*(?:-o\\s(\\S+\\.txt))?";
+    private static String postPattern = "httpc\\s+post\\s+(-v\\s)?+((?:-h\\s+[\\S]+\\s)+)?+(?:--d\\s+'(.*?)'\\s)?+(?:-f\\s+(.*?)\\s)?+(?:'?(https?://\\S+[^']))?(?:(/\\S*))?+\\s*(?:-o\\s(\\S+\\.txt))?";
 
     // Compile regular expressions
     private static Pattern helpRegex = Pattern.compile(helpPattern);
@@ -79,12 +84,23 @@ public class cURLClient {
             String headerData = postMatcher.group(2);
             String inlineData = postMatcher.group(3);
             String fileFlag = postMatcher.group(4);
-            String url = postMatcher.group(5).trim();
-            String outputFile = postMatcher.group(6);
+            String url;
+            Socket clientSocket;
+            if(postMatcher.group(5) != null) {
+                url = postMatcher.group(5).trim();
+                clientSocket = httpLibrary.getSocket(url);
+            }
+            else {
+                url = postMatcher.group(6).trim();
+                clientSocket  = new Socket("localhost", 8080);
+            }
+            String outputFile = postMatcher.group(7);
             if (inlineData != null) {
-                httpLibrary.post(inlineData.trim(), httpLibrary.getPathToResource(url), httpLibrary.getSocket(url), getHeaders(headerData), (verboseFlag != null), outputFile);
+                System.out.println("Here in line");
+                httpLibrary.post(inlineData.trim(), httpLibrary.getPathToResource(url), clientSocket, getHeaders(headerData), (verboseFlag != null), outputFile);
             } else if (fileFlag != null){
-                httpLibrary.postFile(fileFlag.trim(), httpLibrary.getSocket(url), getHeaders(headerData), (verboseFlag != null), outputFile);
+                System.out.println("here file post");
+                httpLibrary.postFile(fileFlag.trim(), clientSocket, getHeaders(headerData), (verboseFlag != null), outputFile);
             }
         } else if (getMatcher.find()) {
             String verboseFlag = getMatcher.group(1);

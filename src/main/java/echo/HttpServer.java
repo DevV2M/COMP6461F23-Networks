@@ -3,9 +3,12 @@ package echo;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class HttpServer {
 
@@ -55,14 +58,40 @@ public class HttpServer {
                     }
                 } else if (requestTokens.length == 3 && requestTokens[0].equals("POST")) {
                     String requestedPath = requestTokens[1];
-
+                    System.out.println(requestedPath);
                     if (requestedPath.startsWith("/")) {
-                        String overwriteOption = getOverwriteOption(reader);
+                        String delimiter = "\r\n\r\n";
+                        int bytesRead;
+                        StringBuilder receivedData = new StringBuilder();
+                        char[] buffer = new char[1024]; // Adjust buffer size as needed
+                        String receivedHeader = null;
+                        String receivedBody = null;
+                        while ((bytesRead = reader.read(buffer)) != -1) {
+                            receivedData.append(buffer, 0, bytesRead);
+                            // Check if the delimiter has been received
+                            int delimiterIndex = receivedData.indexOf(delimiter);
+                            if (delimiterIndex >= 0) {
+                                // Split data at the delimiter
+                                receivedHeader = receivedData.substring(0, delimiterIndex);
+                                receivedBody = receivedData.substring(delimiterIndex + delimiter.length());
+                                break;
+                            }
+                        }
+
+                        List<String> headers = getRequestHeaders(receivedHeader);
+
+                        String boundary = extractBoundaryFromHeader(headers);
+
+                        String overwriteOption = getOverwriteOption(headers);
 
                         // Requested file path
                         String filePath = requestedPath.substring(1);
 
-                        if (createOrUpdateFile(filePath, reader, overwriteOption)) {
+                        String bodyContent = extractBodyContent(boundary, receivedBody);
+                        //TODO: The file path is incorrect, in POST the sent header doesn't have the file name, it's in the body check with TA
+                        System.out.println("File Path: " + filePath);
+                        // TODO: The method createOfUpdate should read from String, check if it works
+                        if (createOrUpdateFile(filePath, bodyContent, overwriteOption)) {
                             sendCreatedResponse(out);
                         } else {
                             sendForbiddenResponse(out);
@@ -77,19 +106,75 @@ public class HttpServer {
         }
     }
 
-    private static String getOverwriteOption(BufferedReader reader) throws IOException {
-        String overwriteOption = "false";
-        String line;
-        while ((line = reader.readLine()) != null && !line.isEmpty()) {
-            if (line.startsWith("Overwrite: ")) {
-                overwriteOption = line.substring("Overwrite: ".length());
+    private static String extractBodyContent(String boundary, String requestBody) throws IOException {
+
+        if (boundary != null) {
+            // Construct the regular expression pattern to match the content between the boundary lines
+            String regex = Pattern.quote(boundary) + "(.*?)" + Pattern.quote(boundary) + "--";
+            Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
+
+            // Use the pattern to match and extract the POST command body
+            Matcher matcher = pattern.matcher(requestBody);
+
+            if (matcher.find()) {
+                String postBodyContentWithHeaders = matcher.group(1).trim();
+                BufferedReader reader = new BufferedReader(new StringReader(postBodyContentWithHeaders));
+
+                String line;
+                StringBuilder bodyContent = new StringBuilder();
+                while ((line = reader.readLine()) != null && !line.isEmpty()) ;
+                while ((line = reader.readLine()) != null) {
+                    bodyContent.append(line).append("\n");
+                }
+                String content = bodyContent.toString().trim();
+                return content;
+            }
+        } else {
+            System.out.println("Boundary not found in the request header.");
+        }
+        return null;
+    }
+
+    private static String extractBoundaryFromHeader(List<String> headers) {
+        // Define the regular expression pattern to extract the boundary parameter from the Content-Type header
+        Pattern pattern = Pattern.compile("Content-Type:.*?boundary=([\\w\\-]+)");
+        for (String header : headers) {
+            System.out.println(header);
+            if (header.startsWith("Content-Type")) {
+                Matcher matcher = pattern.matcher(header);
+                if (matcher.find()) {
+                    return matcher.group(1);
+                }
+            }
+        }
+        return null;
+    }
+
+    private static String getOverwriteOption(List<String> headers) throws IOException {
+        String overwriteOption = "true";
+
+        for (String header : headers) {
+            if (header.startsWith("Overwrite: ")) {
+                overwriteOption = header.substring("Overwrite: ".length());
                 break;
             }
         }
         return overwriteOption;
     }
 
-    private static boolean createOrUpdateFile(String filePath, BufferedReader reader, String overwriteOption) throws IOException {
+    private static List<String> getRequestHeaders(String receivedHeader) throws IOException {
+        List<String> headers = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new StringReader(receivedHeader))) {
+            String line;
+            while ((line = reader.readLine()) != null && !line.isEmpty()) {
+                headers.add(line);
+            }
+        }
+        return headers;
+    }
+
+    // NEED TO FIX TO READ AND WRITE
+    private static boolean createOrUpdateFile(String filePath, String content, String overwriteOption) throws IOException {
         if ("false".equalsIgnoreCase(overwriteOption) && Files.exists(Paths.get(filePath))) {
             return false;
         }
@@ -97,15 +182,15 @@ public class HttpServer {
         // Read the content from the request body and write it to the file
         try (FileOutputStream fos = new FileOutputStream(filePath);
              OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
-             BufferedWriter writer = new BufferedWriter(osw)) {
+             BufferedWriter writer = new BufferedWriter(osw);
+             BufferedReader reader = new BufferedReader(new StringReader(content))) {
 
             String line;
-            while ((line = reader.readLine()) != null && !line.isEmpty()) {
+            while ((line = reader.readLine()) != null) {
                 writer.write(line);
-                writer.newLine();
+                writer.newLine(); //TODO: Check if this creates an additional new line
             }
         }
-
         return true;
     }
 
