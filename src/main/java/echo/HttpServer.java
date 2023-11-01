@@ -45,7 +45,6 @@ public class HttpServer {
                     } else if (requestedPath.startsWith("/")) {
                         // Requested file path
                         String filePath = requestedPath.substring(1);
-                        System.out.println(filePath);
                         if (Files.exists(Paths.get(filePath))) {
                             String fileContent = getFileContent(filePath);
                             String response = generateResponse(fileContent, acceptHeader);
@@ -58,7 +57,6 @@ public class HttpServer {
                     }
                 } else if (requestTokens.length == 3 && requestTokens[0].equals("POST")) {
                     String requestedPath = requestTokens[1];
-                    System.out.println(requestedPath);
                     if (requestedPath.startsWith("/")) {
                         String delimiter = "\r\n\r\n";
                         int bytesRead;
@@ -77,21 +75,20 @@ public class HttpServer {
                                 break;
                             }
                         }
-
                         List<String> headers = getRequestHeaders(receivedHeader);
-
-                        String boundary = extractBoundaryFromHeader(headers);
+                        String bodyContent = null;
+                        if(checkIfMultipartFormData(headers)){
+                            String boundary = extractBoundaryFromHeader(headers);
+                            bodyContent = extractBodyContent(boundary, receivedBody);
+                        } else{
+                            bodyContent = receivedBody;
+                        }
 
                         String overwriteOption = getOverwriteOption(headers);
-
                         // Requested file path
-                        String filePath = requestedPath.substring(1);
+                        String postTofilePath = requestedPath.substring(1);
 
-                        String bodyContent = extractBodyContent(boundary, receivedBody);
-                        //TODO: The file path is incorrect, in POST the sent header doesn't have the file name, it's in the body check with TA
-                        System.out.println("File Path: " + filePath);
-                        // TODO: The method createOfUpdate should read from String, check if it works
-                        if (createOrUpdateFile(filePath, bodyContent, overwriteOption)) {
+                        if (createOrUpdateFile(postTofilePath, bodyContent, overwriteOption)) {
                             sendCreatedResponse(out);
                         } else {
                             sendForbiddenResponse(out);
@@ -106,11 +103,25 @@ public class HttpServer {
         }
     }
 
+    private static boolean checkIfMultipartFormData(List<String> headers) {
+        Pattern pattern = Pattern.compile("Content-Type:.*?multipart/form-data.*?");
+        for (String header : headers) {
+            if (header.startsWith("Content-Type")) {
+                Matcher matcher = pattern.matcher(header);
+                if (matcher.find()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+
+    }
+
     private static String extractBodyContent(String boundary, String requestBody) throws IOException {
 
         if (boundary != null) {
             // Construct the regular expression pattern to match the content between the boundary lines
-            String regex = Pattern.quote(boundary) + "(.*?)" + Pattern.quote(boundary) + "--";
+            String regex = Pattern.quote(boundary) + "(.*?)" + Pattern.quote(boundary);
             Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
 
             // Use the pattern to match and extract the POST command body
@@ -124,6 +135,7 @@ public class HttpServer {
                 StringBuilder bodyContent = new StringBuilder();
                 while ((line = reader.readLine()) != null && !line.isEmpty()) ;
                 while ((line = reader.readLine()) != null) {
+                    if(line.compareTo("--") == 0) continue;
                     bodyContent.append(line).append("\n");
                 }
                 String content = bodyContent.toString().trim();
@@ -136,6 +148,21 @@ public class HttpServer {
     }
 
     private static String extractBoundaryFromHeader(List<String> headers) {
+        // Define the regular expression pattern to extract the boundary parameter from the Content-Type header
+        Pattern pattern = Pattern.compile("Content-Type:.*?boundary=([\\w\\-]+)");
+        for (String header : headers) {
+            System.out.println(header);
+            if (header.startsWith("Content-Type")) {
+                Matcher matcher = pattern.matcher(header);
+                if (matcher.find()) {
+                    return matcher.group(1);
+                }
+            }
+        }
+        return null;
+    }
+
+    private static String extractFilePathFromBody(List<String> headers) {
         // Define the regular expression pattern to extract the boundary parameter from the Content-Type header
         Pattern pattern = Pattern.compile("Content-Type:.*?boundary=([\\w\\-]+)");
         for (String header : headers) {
