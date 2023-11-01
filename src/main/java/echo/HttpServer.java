@@ -38,8 +38,7 @@ public class HttpServer {
                 if (requestTokens.length == 3 && requestTokens[0].equals("GET")) {
                     String requestedPath = requestTokens[1];
                     String acceptHeader = getAcceptHeader(reader);
-                    Path rootDirectory = Paths.get("").toAbsolutePath().normalize(); // Root directory of your project
-                    Path resolvedPath = rootDirectory.resolve(requestedPath).normalize(); // Resolved path of the requested file
+                    Path rootDirectory = Paths.get("").toAbsolutePath().normalize();
 
                     if ("/".equals(requestedPath)) {
                         List<String> fileList = listFilesInDataDirectory(rootDirectory.toString());
@@ -47,7 +46,13 @@ public class HttpServer {
                         sendHttpResponse(out, response);
                     } else if (requestedPath.startsWith("/")) {
                         String filePath = requestedPath.substring(1);
-                        System.out.println(filePath);
+                        Path resolvedFilePath = rootDirectory.resolve(filePath).normalize();
+                        System.out.println("Resolved file path: " + resolvedFilePath);
+                        if (!resolvedFilePath.startsWith(rootDirectory)) {
+//                            sendForbiddenResponse(out);
+//                            return;
+                            System.out.println("Resolved file path is not in the root directory");
+                        }
                         if (Files.exists(Paths.get(filePath))) {
                             String fileContent = getFileContent(filePath);
                             String response = generateResponse(fileContent, acceptHeader);
