@@ -1,3 +1,11 @@
+/**
+ * COMP 6461 - Computer Networks and Protocols
+ * Lab Assignment #2
+ * Group Members:
+ * Vithu Maheswaran - 27052715
+ * Shafiq Imtiaz - 40159305
+ */
+
 package echo;
 
 import java.io.*;
@@ -45,12 +53,13 @@ public class HttpServer {
                     Path rootDirectory = Paths.get("").toAbsolutePath().normalize();
 
                     if ("/".equals(requestedPath)) {
-                        List<String> fileList = listFilesInDataDirectory(rootDirectory.toString());
+                        List<String> fileList = listFilesAndDirectories(rootDirectory.toString());
                         String response = generateResponse(fileList, acceptHeader);
                         sendHttpResponse(out, response);
                     } else if (requestedPath.startsWith("/")) {
                         String filePath = requestedPath.substring(1);
 
+                        // FIXME: Secure Access
                         Path resolvedFilePath = rootDirectory.resolve(filePath).normalize();
                         System.out.println("Resolved file path: " + resolvedFilePath);
                         if (!resolvedFilePath.startsWith(rootDirectory)) {
@@ -213,7 +222,7 @@ public class HttpServer {
         return headers;
     }
 
-    // NEED TO FIX TO READ AND WRITE
+    // TODO: NEED TO FIX TO READ AND WRITE
     private static boolean createOrUpdateFile(String filePath, String content, String overwriteOption) throws IOException {
         if ("false".equalsIgnoreCase(overwriteOption) && Files.exists(Paths.get(filePath))) {
             return false;
@@ -234,14 +243,15 @@ public class HttpServer {
         return true;
     }
 
-    private static List<String> listFilesInDataDirectory(String directoryPath) {
-        // Replace with the actual logic to list files in your data directory
+    private static List<String> listFilesAndDirectories(String directoryPath) {
         List<String> fileList = new ArrayList<>();
         try {
             Path dir = Paths.get(directoryPath);
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
                 for (Path path : stream) {
-                    fileList.add(path.getFileName().toString());
+                    if (Files.isRegularFile(path) || Files.isDirectory(path)) {
+                        fileList.add(path.getFileName().toString());
+                    }
                 }
             }
         } catch (IOException e) {
@@ -334,5 +344,16 @@ public class HttpServer {
     private static void sendCreatedResponse(OutputStream out) throws IOException {
         String createdResponse = "HTTP/1.1 201 Created\r\n\r\n";
         out.write(createdResponse.getBytes());
+    }
+
+    // TODO: method to format directory listing
+    private static void printFilesAndDirectories(List<String> fileList) {
+        for (String fileOrDir : fileList) {
+            if (fileOrDir.contains(".")) {
+                System.out.println(fileOrDir);
+            } else {
+                System.out.println("/" + fileOrDir);
+            }
+        }
     }
 }

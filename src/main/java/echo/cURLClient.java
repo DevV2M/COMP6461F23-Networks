@@ -5,6 +5,7 @@
  * Vithu Maheswaran - 27052715
  * Shafiq Imtiaz - 40159305
  */
+
 package echo;
 
 import java.io.IOException;
@@ -64,9 +65,11 @@ public class cURLClient {
     public static void main(String[] args) throws IOException {
 
         Scanner sc = new Scanner(System.in);
-        String curlCommand = sc.nextLine().trim();
-        runCommand(curlCommand);
-
+        while (true) {
+            System.out.print(">> ");
+            String command = sc.nextLine().trim();
+            runCommand(command);
+        }
     }
 
     public static void runCommand(String curlCommand) throws IOException {
