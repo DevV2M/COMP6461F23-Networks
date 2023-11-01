@@ -38,18 +38,10 @@ public class cURLClient {
     // httpc post -v -h Content-Type:application/json --d '{"Assignment": 1,"Vithu": "Student"}' http://httpbin.org/post
     // httpc post -v -h Content-Type:application/json --d 'hello' http://httpbin.org/post
 
-    // Post in-line data A2
-    // httpc post -v -h overwrite:true --d 'hello' 'http://localhost:8080/postFileTest.txt'
-    // httpc post -v --d 'hello' 'http://localhost:8080/postFileTest.txt'
-
-
-    // Post file
-    // httpc post -v -f ./text.txt http://httpbin.org/post -o postFileTest.txt
+    // Post file A2
     // httpc post -v -f ./text.txt http://localhost:8080/postFileTest.txt
     // httpc post -v --d 'hello' http://localhost:8080/postFileTest.txt
 
-    // Post file A2
-    // httpc post -v -f ./teapot.txt /teapot.txt -o postFileTest.txt
     // Regular expressions for different types of commands
 
     private static String helpPattern = "httpc\\s+help(?:\\s+([a-zA-Z]+))?";
