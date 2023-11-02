@@ -24,6 +24,8 @@ import java.util.regex.Pattern;
 
 public class HttpServer {
 
+    private static String serverDirectoryPath;
+
     public static void main(String[] args) {
         int port = 8080;
 
@@ -50,22 +52,14 @@ public class HttpServer {
                 if (requestTokens.length == 3 && requestTokens[0].equals("GET")) {
                     String requestedPath = requestTokens[1];
                     String acceptHeader = getAcceptHeader(reader);
-                    Path rootDirectory = Paths.get("").toAbsolutePath().normalize();
 
                     if (requestedPath.endsWith("/")) {
-                        List<String> fileList = listFilesAndDirectories(rootDirectory.toString());
+                        System.out.println("Path: " + requestedPath);
+                        List<String> fileList = listFilesAndDirectories(requestedPath);
                         String response = generateResponse(fileList, acceptHeader);
                         sendHttpResponse(out, response);
                     } else if (requestedPath.startsWith("/")) {
                         String filePath = requestedPath.substring(1);
-
-                        // FIXME: Secure Access
-                        Path resolvedFilePath = rootDirectory.resolve(filePath).normalize();
-                        System.out.println("Resolved file path: " + resolvedFilePath);
-                        if (!resolvedFilePath.startsWith(rootDirectory)) {
-                            System.out.println(resolvedFilePath + " is not a subdirectory of " + rootDirectory);
-                            sendForbiddenResponse(out);
-                        }
 
                         if (Files.exists(Paths.get(filePath))) {
                             String fileContent = getFileContent(filePath);
@@ -237,17 +231,22 @@ public class HttpServer {
             String line;
             while ((line = reader.readLine()) != null) {
                 writer.write(line);
-                writer.newLine(); //TODO: Check if this creates an additional new line
+                writer.newLine();
             }
         }
         return true;
     }
 
-    private static List<String> listFilesAndDirectories(String directoryPath) {
+    private static List<String> listFilesAndDirectories(String currentPath) {
+        String currentDirectory = System.getProperty("user.dir");
+
+        System.out.println("Dir:" + currentDirectory);
+        File folder = new File(currentDirectory + currentPath);
+//        File folder = new File(serverDirectoryPath + currentPath);
+
         List<String> fileList = new ArrayList<>();
         try {
-            Path dir = Paths.get(directoryPath);
-            try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(Path.of(folder.getAbsolutePath()))) {
                 for (Path path : stream) {
                     if (Files.isRegularFile(path) || Files.isDirectory(path)) {
                         fileList.add(path.getFileName().toString());
@@ -259,6 +258,7 @@ public class HttpServer {
         }
         return fileList;
     }
+
 
     private static String getFileContent(String filePath) throws IOException {
         // Read and return the content of the file
@@ -278,48 +278,42 @@ public class HttpServer {
     }
 
     private static String generateResponse(List<String> fileList, String acceptHeader) {
-//        if (acceptHeader.contains("application/json")) {
-//            // Generate JSON response
-//            // You would need to implement JSON serialization here
-//            return "JSON response: " + fileList.toString();
-//        } else if (acceptHeader.contains("application/xml")) {
-//            // Generate XML response
-//            // You would need to implement XML serialization here
-//            return "XML response: " + fileList.toString();
-//        } else if (acceptHeader.contains("text/plain")) {
-//            // Generate plain text response
-//            return "Text response: " + String.join("\n", fileList);
-//        } else if (acceptHeader.contains("text/html")) {
-//            // Generate HTML response
-//            // You would need to implement HTML response generation here
-//            return "HTML response: " + fileList.toString();
-//        } else {
-//            // Default to JSON if no specific format is requested
-//            return "JSON response: " + fileList.toString();
-//        }
-        return fileList.toString();
+
+        StringBuilder listOfFiles = new StringBuilder();
+        String extension = "";
+        if (acceptHeader != null) {
+            switch (acceptHeader) {
+                case "json":
+                    extension = ".json";
+                    break;
+                case "text/plain":
+                    extension = ".txt";
+                    break;
+                case "xml":
+                    extension = ".xml";
+                    break;
+                case "html":
+                    extension = ".html";
+                    break;
+                default:
+                    extension = "";
+                    // code block
+            }
+        }
+        for (String file : fileList) {
+            if (extension == "") {
+                listOfFiles.append(file);
+                listOfFiles.append("\n");
+            } else if (file.endsWith(extension)) {
+                listOfFiles.append(file);
+                listOfFiles.append("\n");
+            }
+        }
+        return listOfFiles.toString();
     }
 
-    private static String generateResponse(String content, String acceptHeader) {
-        if (acceptHeader.contains("application/json")) {
-            // Generate JSON response
-            // You would need to implement JSON serialization here
-            return "JSON response: " + content;
-        } else if (acceptHeader.contains("application/xml")) {
-            // Generate XML response
-            // You would need to implement XML serialization here
-            return "XML response: " + content;
-        } else if (acceptHeader.contains("text/plain")) {
-            // Generate plain text response
-            return content;
-        } else if (acceptHeader.contains("text/html")) {
-            // Generate HTML response
-            // You would need to implement HTML response generation here
-            return "HTML response: " + content;
-        } else {
-            // Default to JSON if no specific format is requested
-            return "JSON response: " + content;
-        }
+    private static String generateResponse(String content, String contentType) {
+        return content;
     }
 
     private static void sendHttpResponse(OutputStream out, String response) throws IOException {
@@ -344,16 +338,5 @@ public class HttpServer {
     private static void sendCreatedResponse(OutputStream out) throws IOException {
         String createdResponse = "HTTP/1.1 201 Created\r\n\r\n";
         out.write(createdResponse.getBytes());
-    }
-
-    // TODO: method to format directory listing
-    private static void printFilesAndDirectories(List<String> fileList) {
-        for (String fileOrDir : fileList) {
-            if (fileOrDir.contains(".")) {
-                System.out.println(fileOrDir);
-            } else {
-                System.out.println("/" + fileOrDir);
-            }
-        }
     }
 }
