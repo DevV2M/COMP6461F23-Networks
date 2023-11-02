@@ -16,32 +16,76 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
 public class HttpServer {
+    private static final String commandPattern = "httpfs\\s+(-v)?\\s*(-p\\s\\d+)?\\s*(-d\\s\\S+)?";
+    private static final Pattern commandRegex = Pattern.compile(commandPattern);
+
+    private static String serverDirectory;
+
+    private static final AtomicInteger clientCount = new AtomicInteger(0);
+    private static Set<Thread> threadSet = new HashSet<>();
+    private static int currentClientCount = 0;
 
     private static String serverDirectoryPath;
 
     public static void main(String[] args) {
-        int port = 8080;
-
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Server is listening on port " + port);
-
-            while (true) {
-                Socket clientSocket = serverSocket.accept();
-                handleRequest(clientSocket);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        Scanner sc = new Scanner(System.in);
+        while (true) {
+            System.out.print(">> ");
+            String command = sc.nextLine().trim();
+            runCommand(command);
         }
     }
 
-    private static void handleRequest(Socket clientSocket) {
+    public static void runCommand(String curlCommand) {
+        Matcher commnandMatcher = commandRegex.matcher(curlCommand);
+        if (commnandMatcher.find()) {
+            String verboseFlag = commnandMatcher.group(1) != null ? commnandMatcher.group(1).split("\\s")[1] : null;
+            String portFlag = commnandMatcher.group(2) != null ? commnandMatcher.group(2).split("\\s")[1] : null;
+            String dirFlag = commnandMatcher.group(3) != null ? commnandMatcher.group(3).split("\\s")[1] : null;
+
+            boolean isVerbose = verboseFlag != null;
+            int port = (portFlag != null) ? Integer.parseInt(portFlag.trim()) : 8080;
+            serverDirectory = (dirFlag != null) ? dirFlag.trim() : null;
+
+            System.out.println("-v " + isVerbose + "-p " + port + " -d " + serverDirectory);
+
+            try (ServerSocket serverSocket = new ServerSocket(port)) {
+                System.out.println("Server is listening on port " + port);
+
+                while (true) {
+                    Socket clientSocket = serverSocket.accept();
+                    currentClientCount = clientCount.incrementAndGet();
+                    new Thread(() -> {
+                        Thread.currentThread().setName("Client " + currentClientCount);
+                        handleRequest(clientSocket, verboseFlag != null);
+                    }).start();
+                    System.out.println("Running clients: " + clientCount.get());
+//                    System.out.println("Client threads: ");
+//                    printRunningClients();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("Command not matched");
+        }
+    }
+
+    public static void printRunningClients() {
+        threadSet = Thread.getAllStackTraces().keySet();
+        threadSet.stream()
+                .filter(thread -> thread.getName().startsWith("Client"))
+                .forEach(thread -> System.out.println(thread.getName()));
+    }
+
+    private static void handleRequest(Socket clientSocket, boolean verbose) {
         try (InputStream in = clientSocket.getInputStream();
              OutputStream out = clientSocket.getOutputStream();
              BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
