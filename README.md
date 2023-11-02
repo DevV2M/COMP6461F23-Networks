@@ -41,6 +41,9 @@
 - `httpc get http://httpbin.org/status/418`
 - `httpc get -v http://httpbin.org/status/418 -o ./teapot.txt`
 
+- `httpc get http://localhost:8080/teapot.txt`
+- `httpc get http://localhost:8080/`
+
 ### POST
 
 - `httpc post -v -h Content-Type:application/json --d '{"Assignment": 1,"Vithu": 1}' http://httpbin.org/post`
