@@ -52,7 +52,7 @@ public class HttpServer {
                     String acceptHeader = getAcceptHeader(reader);
                     Path rootDirectory = Paths.get("").toAbsolutePath().normalize();
 
-                    if ("/".equals(requestedPath)) {
+                    if (requestedPath.endsWith("/")) {
                         List<String> fileList = listFilesAndDirectories(rootDirectory.toString());
                         String response = generateResponse(fileList, acceptHeader);
                         sendHttpResponse(out, response);
