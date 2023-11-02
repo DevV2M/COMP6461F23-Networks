@@ -1,49 +1,106 @@
-# COMP6461F23-Networks
-Computer Networks and Protocols
+# COMP 6461 - Computer Networks and Protocols
 
-There are several examples to help you be familiar with networking programming in JDK. It is recommended to use common tools to develop your assignment. Therefore we use Maven for this example.
+## Lab Assignment #1
 
-## Requirement
-1. [Oracle JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-2. [Apache Maven](https://maven.apache.org/) 
+---
+
+### Group Members:
+
+- Vithu Maheswaran - 27052715
+- Shafiq Imtiaz - 40159305
+
+---
 
 ## Structure
-There are 5 applications in this example for the echo and time protocols.
 
-### Echo Protocol
-- **Blocking Echo Server** - an implementation of the echo server using a blocking NIO socket
-- **Blocking Echo Client** - an implementation of the echo client using a blocking NIO socket
-- **Multiplex Echo Server** - an implementation of the cho server using the select mechanism of the NIO socket
+```
+<root>
+├── src
+│   └── main
+│       └── java
+│           └── echo
+│               ├── cURLClient.java
+│               └── httpLibrary.java
+└── README.MD
+```
 
-### Time Protocol
-- **Blocking Time Server** - an implementation of the time server using a blocking NIO socket
-- **Blocking Time Client** - an implementation of the time client using a blocking NIO socket
+## COMMANDS
 
-## Compile and package
-1. Open the terminal and cd to the `netsample` directory
-2. Run `mvn package` to compile and package this example
-You should see two jar files in the `target` directory: one with all dependencies (we use logging and argument parse libraries); one without dependencies.
+---
 
-## Run the sample applications
-Use the following the commands to run applications.
+### Help
 
-### Blocking Echo Server
-`java -cp target/netsample-1.0-SNAPSHOT-jar-with-dependencies.jar ca.concordia.echo.BlockingEchoServer --port 8007`
-You should see the message 'ca.concordia.echo.BlockingEchoServer - EchoServer is listening at /0:0:0:0:0:0:0:0:8007' which means your echo server is ready.
+- `httpc help`
+- `httpc help get`
+- `httpc help post`
 
-### Blocking Echo Client
-Once your echo server client is listening, you can use the echo client by this command
-`java -cp target/netsample-1.0-SNAPSHOT-jar-with-dependencies.jar ca.concordia.echo.BlockingEchoClient --host localhost --port 8007`
-If there is no error, you should be able to type into your console; and receive an echo from the echo server.
+### GET
 
-### Blocking Time Server
-`java -cp target/netsample-1.0-SNAPSHOT-jar-with-dependencies.jar ca.concordia.time.BlockingTimeServer --port 8037`
+- `httpc get -v -h Content-Type:application/json 'http://httpbin.org/get?course=networking&assignment=1'`
+- `httpc get -v http://httpbin.org/status/418`
+- `httpc get http://httpbin.org/status/418`
+- `httpc get -v http://httpbin.org/status/418 -o ./teapot.txt`
 
-### Blocking Time Client
-`java -cp target/netsample-1.0-SNAPSHOT-jar-with-dependencies.jar ca.concordia.time.BlockingTimeClient --host localhost --port 8037`
+- `httpc get http://localhost:8080/teapot.txt`
+- `httpc get http://localhost:8080/`
 
-### Multiplex Echo Server
-This implementation demonstrates how to use `select` mechanism to handle multiple clients with a single thread in non-blocking manner. This example is useful for your future assignment.
+### POST
+
+- `httpc post -v -h Content-Type:application/json --d '{"Assignment": 1,"Vithu": 1}' http://httpbin.org/post`
+- `httpc post -v -h Content-Type:application/json --d '{"Assignment": 1,"Vithu": "Student"}' http://httpbin.org/post`
+- `httpc post -v -h Content-Type:application/json --d 'hello' http://httpbin.org/post`
+
+### POST FILE
+
+- `httpc post -v -f ./text.txt 'http://httpbin.org/post' -o postFileTest.txt`
+
+## BONUS TASK
+
+### Redirect GET
+
+- `httpc get -v http://httpbin.org/status/301`
+- `httpc get -v http://httpbin.org/status/304`
+
+### Redirect POST
+
+- `httpc post -v --d '{:}' http://httpbin.org/status/301`
+
+---
+
+## ADDITIONAL TESTING API
+
+### [Postman Collection](https://www.postman.com/postman/workspace/published-postman-templates/folder/631643-9a4c3bce-30f7-a496-c9ec-78afecbf1545?ctx=documentation)
+
+- `httpc get -v http://postman-echo.com/get?foo1=bar1&foo2=bar2`
+- `httpc post -v --d '{:}' http://postman-echo.com/post`
+
+---
 
 ## Using with IDE
-You can either Intellij, Eclipse, or Netbeans to run, and extend these examples.
+
+In `Intellij`, you can simply open the project and run the application.
+or you can create a JAR file and run it from the command line.
+
+## Using JAR
+
+1. Navigate to the project source directory
+   `cd out/artifacts/httpc_jar`
+2. Run the application using the JAR file
+   `java -jar httpc.jar`
+
+## Using with Command Line
+
+1. Navigate to the project source directory
+   `cd src/main/java/echo`
+2. Compile the source code
+   `javac httpLibrary.java cURLClient.java`
+3. Create a manifest file named manifest.txt with the following content:
+   `echo "Main-Class: echo.cURLClient" > manifest.txt`
+4. Package the compiled code and manifest into a JAR file
+   `jar cvfm httpc.jar manifest.txt httpLibrary.class cURLClient.class`
+5. Run the application using the JAR file
+   `java -jar httpc.jar`
+
+## Requirement
+
+[Oracle JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)

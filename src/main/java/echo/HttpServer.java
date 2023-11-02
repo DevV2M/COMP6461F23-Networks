@@ -1,14 +1,26 @@
+/**
+ * COMP 6461 - Computer Networks and Protocols
+ * Lab Assignment #2
+ * Group Members:
+ * Vithu Maheswaran - 27052715
+ * Shafiq Imtiaz - 40159305
+ */
+
 package echo;
 
 import java.io.*;
-import java.net.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 
 public class HttpServer {
 
@@ -38,13 +50,23 @@ public class HttpServer {
                 if (requestTokens.length == 3 && requestTokens[0].equals("GET")) {
                     String requestedPath = requestTokens[1];
                     String acceptHeader = getAcceptHeader(reader);
-                    if ("/".equals(requestedPath)) {
-                        List<String> fileList = listFilesInDataDirectory();
+                    Path rootDirectory = Paths.get("").toAbsolutePath().normalize();
+
+                    if (requestedPath.endsWith("/")) {
+                        List<String> fileList = listFilesAndDirectories(rootDirectory.toString());
                         String response = generateResponse(fileList, acceptHeader);
                         sendHttpResponse(out, response);
                     } else if (requestedPath.startsWith("/")) {
-                        // Requested file path
                         String filePath = requestedPath.substring(1);
+
+                        // FIXME: Secure Access
+                        Path resolvedFilePath = rootDirectory.resolve(filePath).normalize();
+                        System.out.println("Resolved file path: " + resolvedFilePath);
+                        if (!resolvedFilePath.startsWith(rootDirectory)) {
+                            System.out.println(resolvedFilePath + " is not a subdirectory of " + rootDirectory);
+                            sendForbiddenResponse(out);
+                        }
+
                         if (Files.exists(Paths.get(filePath))) {
                             String fileContent = getFileContent(filePath);
                             String response = generateResponse(fileContent, acceptHeader);
@@ -77,10 +99,10 @@ public class HttpServer {
                         }
                         List<String> headers = getRequestHeaders(receivedHeader);
                         String bodyContent = null;
-                        if(checkIfMultipartFormData(headers)){
+                        if (checkIfMultipartFormData(headers)) {
                             String boundary = extractBoundaryFromHeader(headers);
                             bodyContent = extractBodyContent(boundary, receivedBody);
-                        } else{
+                        } else {
                             bodyContent = receivedBody;
                         }
 
@@ -135,7 +157,7 @@ public class HttpServer {
                 StringBuilder bodyContent = new StringBuilder();
                 while ((line = reader.readLine()) != null && !line.isEmpty()) ;
                 while ((line = reader.readLine()) != null) {
-                    if(line.compareTo("--") == 0) continue;
+                    if (line.compareTo("--") == 0) continue;
                     bodyContent.append(line).append("\n");
                 }
                 String content = bodyContent.toString().trim();
@@ -200,7 +222,7 @@ public class HttpServer {
         return headers;
     }
 
-    // NEED TO FIX TO READ AND WRITE
+    // TODO: NEED TO FIX TO READ AND WRITE
     private static boolean createOrUpdateFile(String filePath, String content, String overwriteOption) throws IOException {
         if ("false".equalsIgnoreCase(overwriteOption) && Files.exists(Paths.get(filePath))) {
             return false;
@@ -208,7 +230,7 @@ public class HttpServer {
 
         // Read the content from the request body and write it to the file
         try (FileOutputStream fos = new FileOutputStream(filePath);
-             OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
+             OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
              BufferedWriter writer = new BufferedWriter(osw);
              BufferedReader reader = new BufferedReader(new StringReader(content))) {
 
@@ -221,11 +243,20 @@ public class HttpServer {
         return true;
     }
 
-    private static List<String> listFilesInDataDirectory() {
-        // Replace with the actual logic to list files in your data directory
+    private static List<String> listFilesAndDirectories(String directoryPath) {
         List<String> fileList = new ArrayList<>();
-        fileList.add("file1.txt");
-        fileList.add("file2.txt");
+        try {
+            Path dir = Paths.get(directoryPath);
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+                for (Path path : stream) {
+                    if (Files.isRegularFile(path) || Files.isDirectory(path)) {
+                        fileList.add(path.getFileName().toString());
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return fileList;
     }
 
@@ -300,6 +331,11 @@ public class HttpServer {
         out.write(httpResponse.getBytes());
     }
 
+    private static void sendForbiddenResponse(OutputStream out) throws IOException {
+        String forbiddenResponse = "HTTP/1.1 403 Forbidden\r\n\r\n";
+        out.write(forbiddenResponse.getBytes());
+    }
+
     private static void sendNotFoundResponse(OutputStream out) throws IOException {
         String notFoundResponse = "HTTP/1.1 404 Not Found\r\n\r\n";
         out.write(notFoundResponse.getBytes());
@@ -310,9 +346,14 @@ public class HttpServer {
         out.write(createdResponse.getBytes());
     }
 
-    private static void sendForbiddenResponse(OutputStream out) throws IOException {
-        String forbiddenResponse = "HTTP/1.1 403 Forbidden\r\n\r\n";
-        out.write(forbiddenResponse.getBytes());
+    // TODO: method to format directory listing
+    private static void printFilesAndDirectories(List<String> fileList) {
+        for (String fileOrDir : fileList) {
+            if (fileOrDir.contains(".")) {
+                System.out.println(fileOrDir);
+            } else {
+                System.out.println("/" + fileOrDir);
+            }
+        }
     }
-
 }

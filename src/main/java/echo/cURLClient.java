@@ -1,6 +1,13 @@
+/**
+ * COMP 6461 - Computer Networks and Protocols
+ * Lab Assignment #1
+ * Group Members:
+ * Vithu Maheswaran - 27052715
+ * Shafiq Imtiaz - 40159305
+ */
+
 package echo;
 
-import javax.swing.plaf.synth.SynthOptionPaneUI;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.HashMap;
@@ -8,8 +15,6 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static echo.httpLibrary.postFile;
 
 public class cURLClient {
 
@@ -44,25 +49,27 @@ public class cURLClient {
 
     // Regular expressions for different types of commands
 
-    private static String helpPattern = "httpc\\s+help(?:\\s+([a-zA-Z]+))?";
+    private static final String helpPattern = "httpc\\s+help(?:\\s+([a-zA-Z]+))?";
 
     // Pattern Group:Value 1:-v, 2:headers, 3:URL
-    private static String getPattern = "httpc\\s+get\\s+(-v\\s)?+((?:-h\\s+[\\S]+\\s)+)?+'?(https?://\\S+[^'])+\\s*(?:-o\\s(\\S+\\.txt))?";
-//    private static String getPattern = "httpc\\s+get\\s+(-v\\s)?+((?:-h\\s+[\\S]+\\s)+)?+(?:'?(https?://\\S+[^']))?(?:(/\\S*))?+\\s*(?:-o\\s(\\S+\\.txt))?";
+    private static final String getPattern = "httpc\\s+get\\s+(-v\\s)?+((?:-h\\s+[\\S]+\\s)+)?+'?(https?://\\S+[^'])+\\s*(?:-o\\s(\\S+\\.txt))?";
+    //    private static String getPattern = "httpc\\s+get\\s+(-v\\s)?+((?:-h\\s+[\\S]+\\s)+)?+(?:'?(https?://\\S+[^']))?(?:(/\\S*))?+\\s*(?:-o\\s(\\S+\\.txt))?";
     // Pattern Group:Value 1:-v, 2:headers, 3:in-line data, 4:file, 5:URL
 //    private static String postPattern = "httpc\\s+post\\s+(-v\\s)?+((?:-h\\s+[\\S]+\\s)+)?+(?:--d\\s+'(.*?)'\\s)?+(?:-f\\s+(.*?)\\s)?+(?:'?(https?://\\S+[^']))?(?:(/\\S*))?+\\s*(?:-o\\s(\\S+\\.txt))?";
-    private static String postPattern = "httpc\\s+post\\s+(-v\\s)?+((?:-h\\s+[\\S]+\\s)+)?+(?:--d\\s+'(.*?)'\\s)?+(?:-f\\s+(.*?)\\s)?+'?(https?://\\S+[^'])+\\s*(?:-o\\s(\\S+\\.txt))?";
+    private static final String postPattern = "httpc\\s+post\\s+(-v\\s)?+((?:-h\\s+[\\S]+\\s)+)?+(?:--d\\s+'(.*?)'\\s)?+(?:-f\\s+(.*?)\\s)?+'?(https?://\\S+[^'])+\\s*(?:-o\\s(\\S+\\.txt))?";
     // Compile regular expressions
-    private static Pattern helpRegex = Pattern.compile(helpPattern);
-    private static Pattern getRegex = Pattern.compile(getPattern);
-    private static Pattern postRegex = Pattern.compile(postPattern);
+    private static final Pattern helpRegex = Pattern.compile(helpPattern);
+    private static final Pattern getRegex = Pattern.compile(getPattern);
+    private static final Pattern postRegex = Pattern.compile(postPattern);
 
     public static void main(String[] args) throws IOException {
 
         Scanner sc = new Scanner(System.in);
-        String curlCommand = sc.nextLine().trim();
-        runCommand(curlCommand);
-
+        while (true) {
+            System.out.print(">> ");
+            String command = sc.nextLine().trim();
+            runCommand(command);
+        }
     }
 
     public static void runCommand(String curlCommand) throws IOException {
@@ -89,8 +96,8 @@ public class cURLClient {
             String outputFile = postMatcher.group(6);
             if (inlineData != null) {
                 httpLibrary.post(inlineData.trim(), httpLibrary.getPathToResource(url), clientSocket, getHeaders(headerData), (verboseFlag != null), outputFile);
-            } else if (fileFlag != null){
-                httpLibrary.postFile(httpLibrary.getPathToResource(url),fileFlag.trim(), clientSocket, getHeaders(headerData), (verboseFlag != null), outputFile);
+            } else if (fileFlag != null) {
+                httpLibrary.postFile(httpLibrary.getPathToResource(url), fileFlag.trim(), clientSocket, getHeaders(headerData), (verboseFlag != null), outputFile);
             }
         } else if (getMatcher.find()) {
             String verboseFlag = getMatcher.group(1);
@@ -100,7 +107,7 @@ public class cURLClient {
             Socket clientSocket = httpLibrary.getSocket(url);
             String outputFile = getMatcher.group(4);
             httpLibrary.get(httpLibrary.getPathToResource(url), clientSocket, getHeaders(headerData), (verboseFlag != null), outputFile);
-        }  else {
+        } else {
             System.out.println("Invalid command: " + curlCommand);
         }
     }
