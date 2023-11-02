@@ -11,7 +11,6 @@
   <component name="ChangeListManager">
     <list default="true" id="8a6709d5-dfed-46e5-8331-0341695ed943" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/echo/HttpServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/echo/HttpServer.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,7 +57,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "draft-shafiq",
+    "git-widget-placeholder": "main",
     "last_opened_file_path": "D:/GitHub/LeetCode",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -81,7 +80,7 @@
       <recent name="$PROJECT_DIR$/src/main/java" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.HttpServer">
+  <component name="RunManager" selected="Application.cURLClient">
     <configuration name="HttpServer" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="echo.HttpServer" />
       <module name="httpc" />
@@ -95,7 +94,7 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="cURLClient" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+    <configuration name="cURLClient" type="Application" factoryName="Application" singleton="false" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="echo.cURLClient" />
       <module name="httpc" />
       <extension name="coverage">
@@ -114,8 +113,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.HttpServer" />
         <item itemvalue="Application.cURLClient" />
+        <item itemvalue="Application.HttpServer" />
       </list>
     </recent_temporary>
   </component>
@@ -142,6 +141,7 @@
       <workItem from="1696465857126" duration="1476000" />
       <workItem from="1698615502771" duration="109000" />
       <workItem from="1698639752171" duration="1294000" />
+      <workItem from="1698899429285" duration="467000" />
     </task>
     <servers />
   </component>
