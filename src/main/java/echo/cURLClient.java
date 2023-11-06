@@ -33,6 +33,9 @@ public class cURLClient {
 
     // Get A2 test commands
     // httpc get 'http://localhost:8080/teapot.txt'
+    // httpc get 'http://localhost:8080/text.txt'
+    // httpc get 'http://localhost:8080/src/text.txt'
+    // httpc get 'http://localhost:8080/Users/vithu/Documents/GitHub/COMP6461F23-Networks/src/text.txt'
 
     // Redirect sample: httpc get -v http://httpbin.org/status/301
     // httpc get -v http://httpbin.org/status/304
