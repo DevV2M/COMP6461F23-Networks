@@ -16,7 +16,9 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,20 +27,18 @@ import java.util.regex.Pattern;
 public class HttpServer {
     private static final String commandPattern = "httpfs\\s+(-v)?\\s*(-p\\s\\d+)?\\s*(-d\\s\\S+)?";
     private static final Pattern commandRegex = Pattern.compile(commandPattern);
-    private static final AtomicInteger clientCount = new AtomicInteger(0);
-    private static String serverDirectory;
-    private static Set<Thread> threadSet = new HashSet<>();
-    private static int currentClientCount = 0;
-
     private static String serverDirectoryPath;
+    private static List<Thread> threadList = new ArrayList<>();
+    private static AtomicInteger currentClientCount = new AtomicInteger(0);
 
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        while (true) {
-            System.out.print(">> ");
-            String command = sc.nextLine().trim();
-            runCommand(command);
-        }
+        // TODO change to args
+//        Scanner sc = new Scanner(System.in);
+//        System.out.print(">> ");
+//        String command = sc.nextLine().trim();
+//        String command = "httpfs -p 8080 -d D:\\GitHub\\COMP6461F23-Networks\\data";
+        String command = "httpfs -p 8080";
+        runCommand(command);
     }
 
     public static void runCommand(String curlCommand) {
@@ -50,23 +50,30 @@ public class HttpServer {
 
             boolean isVerbose = verboseFlag != null;
             int port = (portFlag != null) ? Integer.parseInt(portFlag.trim()) : 8080;
-            serverDirectory = (dirFlag != null) ? dirFlag.trim() : null;
+            serverDirectoryPath = (dirFlag != null) ? dirFlag.trim() : System.getProperty("user.dir");
 
-            System.out.println("-v " + isVerbose + "-p " + port + " -d " + serverDirectory);
+            System.out.println("-p: " + port + ", -d: " + serverDirectoryPath + ", -v: " + isVerbose);
 
             try (ServerSocket serverSocket = new ServerSocket(port)) {
                 System.out.println("Server is listening on port " + port);
 
                 while (true) {
                     Socket clientSocket = serverSocket.accept();
-                    currentClientCount = clientCount.incrementAndGet();
-                    new Thread(() -> {
+                    CountDownLatch latch = new CountDownLatch(1);
+                    currentClientCount.incrementAndGet();
+                    Thread clientThread = new Thread(() -> {
                         Thread.currentThread().setName("Client " + currentClientCount);
                         handleRequest(clientSocket, verboseFlag != null);
-                    }).start();
-                    System.out.println("Running clients: " + clientCount.get());
-//                    System.out.println("Client threads: ");
-//                    printRunningClients();
+                        latch.countDown();  // Signal that the thread has started
+                    });
+                    clientThread.start();
+                    try {
+                        latch.await();  // Wait until the thread has started
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    threadList.add(clientThread);
+                    System.out.println("Running clients: " + getClientThreads());
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -76,11 +83,33 @@ public class HttpServer {
         }
     }
 
-    public static void printRunningClients() {
-        threadSet = Thread.getAllStackTraces().keySet();
-        threadSet.stream()
-                .filter(thread -> thread.getName().startsWith("Client"))
-                .forEach(thread -> System.out.println(thread.getName()));
+
+    public static List<String> getClientThreads() {
+        List<String> clientThreads = new ArrayList<>();
+        for (Thread thread : threadList) {
+            if (thread.getName().startsWith("Client")) {
+                clientThreads.add(thread.getName());
+            }
+        }
+        return clientThreads;
+    }
+
+    public static boolean forbiddenPath(String reqPath) throws IOException {
+
+        Path rootDirectory = Paths.get(serverDirectoryPath).toAbsolutePath().normalize();
+        Path filePath = rootDirectory.resolve(reqPath).normalize();
+
+        System.out.println("Requested path: " + reqPath);
+        System.out.println("Resolved file path: " + filePath);
+        System.out.println("Root directory: " + rootDirectory);
+
+        boolean isInsideRootDirectory = filePath.startsWith(rootDirectory);
+        if (isInsideRootDirectory) {
+            System.out.println("Inside root directory.");
+            return true;
+        }
+        System.out.println("Outside root directory.");
+        return false;
     }
 
     private static void handleRequest(Socket clientSocket, boolean verbose) {
@@ -91,10 +120,13 @@ public class HttpServer {
             String requestLine = reader.readLine();
             if (requestLine != null) {
                 String[] requestTokens = requestLine.split(" ");
+                if (!forbiddenPath(requestTokens[1].substring(1))) {
+                    sendForbiddenResponse(out);
+                    return;
+                }
                 if (requestTokens.length == 3 && requestTokens[0].equals("GET")) {
                     String requestedPath = requestTokens[1];
                     String acceptHeader = getAcceptHeader(reader);
-
                     if (requestedPath.endsWith("/")) {
                         System.out.println("Path: " + requestedPath);
                         List<String> fileList = listFilesAndDirectories(requestedPath);
@@ -102,7 +134,6 @@ public class HttpServer {
                         sendHttpResponse(out, response);
                     } else if (requestedPath.startsWith("/")) {
                         String filePath = requestedPath.substring(1);
-
                         if (Files.exists(Paths.get(filePath))) {
                             String fileContent = getFileContent(filePath);
                             String response = generateResponse(fileContent, acceptHeader);
@@ -343,7 +374,7 @@ public class HttpServer {
             }
         }
         for (String file : fileList) {
-            if (extension == "") {
+            if (extension.isEmpty()) {
                 listOfFiles.append(file);
                 listOfFiles.append("\n");
             } else if (file.endsWith(extension)) {
@@ -368,17 +399,17 @@ public class HttpServer {
     }
 
     private static void sendForbiddenResponse(OutputStream out) throws IOException {
-        String forbiddenResponse = "HTTP/1.1 403 Forbidden\r\n\r\n";
+        String forbiddenResponse = "\r\nHTTP/1.1 403 Forbidden";
         out.write(forbiddenResponse.getBytes());
     }
 
     private static void sendNotFoundResponse(OutputStream out) throws IOException {
-        String notFoundResponse = "HTTP/1.1 404 Not Found\r\n\r\n";
+        String notFoundResponse = "\r\nHTTP/1.1 404 Not Found";
         out.write(notFoundResponse.getBytes());
     }
 
     private static void sendCreatedResponse(OutputStream out) throws IOException {
-        String createdResponse = "HTTP/1.1 201 Created\r\n\r\n";
+        String createdResponse = "\r\nHTTP/1.1 201 Created";
         out.write(createdResponse.getBytes());
     }
 }
