@@ -24,7 +24,8 @@ import java.util.regex.Pattern;
 
 public class HttpServer {
 
-    private static String serverDirectoryPath;
+    // TODO: initialize from server curl
+    private static String serverDirectoryPath = "/Users/vithu/Documents/GitHub/COMP6461F23-Networks/src";
 
     public static void main(String[] args) {
         int port = 8080;
@@ -54,15 +55,13 @@ public class HttpServer {
                     String acceptHeader = getAcceptHeader(reader);
 
                     if (requestedPath.endsWith("/")) {
-                        System.out.println("Path: " + requestedPath);
                         List<String> fileList = listFilesAndDirectories(requestedPath);
                         String response = generateResponse(fileList, acceptHeader);
                         sendHttpResponse(out, response);
                     } else if (requestedPath.startsWith("/")) {
-                        String filePath = requestedPath.substring(1);
-
-                        if (Files.exists(Paths.get(filePath))) {
-                            String fileContent = getFileContent(filePath);
+                        String filePathWithFileName = getFileNameWithPath(requestedPath, acceptHeader);
+                        if (Files.exists(Paths.get(filePathWithFileName))) {
+                            String fileContent = getFileContent(filePathWithFileName);
                             String response = generateResponse(fileContent, acceptHeader);
                             sendHttpResponse(out, response);
                         } else {
@@ -102,7 +101,7 @@ public class HttpServer {
 
                         String overwriteOption = getOverwriteOption(headers);
                         // Requested file path
-                        String postTofilePath = requestedPath.substring(1);
+                        String postTofilePath = serverDirectoryPath + requestedPath;
 
                         if (createOrUpdateFile(postTofilePath, bodyContent, overwriteOption)) {
                             sendCreatedResponse(out);
@@ -117,6 +116,38 @@ public class HttpServer {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static String getFileNameWithPath(String filePath, String acceptHeader) {
+
+        // Define a regular expression pattern to match the part before the last '/'
+        Pattern pattern = Pattern.compile("(.*/)(.*)");
+        Matcher matcher = pattern.matcher(filePath);
+        System.out.println("Initial Path: " + filePath);
+        if (matcher.find()) {
+            String path = matcher.group(1);
+            System.out.println("Matched Substring: " + path);
+            String fileName = matcher.group(2);
+            List<String> listOfFilesAndFolders = listFilesAndDirectories(path);
+            System.out.println("Accept: " + acceptHeader);
+            if (acceptHeader != "") {
+                for (String file : listOfFilesAndFolders) {
+                    if (file.endsWith(acceptHeader)) return serverDirectoryPath + path + file;
+                }
+            } else {
+                for (String file : listOfFilesAndFolders) {
+                    if (file.startsWith(fileName + ".")) return serverDirectoryPath + path + file;
+                    ;
+                }
+
+            }
+
+        } else {
+            System.out.println("No match found.");
+        }
+
+        return "";
+
     }
 
     private static boolean checkIfMultipartFormData(List<String> headers) {
@@ -238,9 +269,11 @@ public class HttpServer {
     }
 
     private static List<String> listFilesAndDirectories(String currentPath) {
-        String currentDirectory = System.getProperty("user.dir");
-
-        System.out.println("Dir:" + currentDirectory);
+        System.out.println("Path sent to Function:" + currentPath);
+//        String currentDirectory = System.getProperty("user.dir");
+        String currentDirectory = serverDirectoryPath;
+//        System.out.println("Dir:" + currentDirectory);
+//        System.out.println("cur path: " + currentPath);
         File folder = new File(currentDirectory + currentPath);
 //        File folder = new File(serverDirectoryPath + currentPath);
 
@@ -262,7 +295,27 @@ public class HttpServer {
 
     private static String getFileContent(String filePath) throws IOException {
         // Read and return the content of the file
-        return new String(Files.readAllBytes(Paths.get(filePath)));
+//        return new String(Files.readAllBytes(Paths.get(filePath)));
+        StringBuilder content = new StringBuilder();
+        try {
+            // Create a FileReader and BufferedReader to read the file
+            FileReader fileReader = new FileReader(filePath);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                content.append(line);
+                content.append("\n");
+                System.out.println(line);
+            }
+
+            // Close the resources when done
+            bufferedReader.close();
+            fileReader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return content.toString();
     }
 
     private static String getAcceptHeader(BufferedReader reader) throws IOException {
