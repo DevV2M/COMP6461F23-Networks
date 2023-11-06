@@ -1,6 +1,6 @@
 # COMP 6461 - Computer Networks and Protocols
 
-## Lab Assignment #1
+## Lab Assignment
 
 ---
 
