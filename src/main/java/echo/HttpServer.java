@@ -50,7 +50,9 @@ public class HttpServer {
             boolean isVerbose = verboseFlag != null;
             int port = (portFlag != null) ? Integer.parseInt(portFlag.trim()) : 8080;
             fileDirectory = (dirFlag != null) ? dirFlag.trim() : "";
+
             System.out.println("-p: " + port + ", -d: " + fileDirectory + ", -v: " + isVerbose);
+
             try (ServerSocket serverSocket = new ServerSocket(port)) {
                 System.out.println("Server is listening on port " + port);
 
@@ -91,28 +93,11 @@ public class HttpServer {
         return clientThreads;
     }
 
-    public static boolean isFileInsideRootDirectory(String filePath) {
-        int parentDirectoryCount = countParentDirectories(filePath);
-        return parentDirectoryCount == 0;
-    }
-
-    public static int countParentDirectories(String filePath) {
-        int count = 0;
-        int index = 0;
-        while ((index = filePath.indexOf("../", index)) != -1) {
-            count++;
-            index += 3;
-        }
-        return count;
-    }
-
     public static boolean forbiddenPath(String reqPath) throws IOException {
-        fileDirectory = fileDirectory.isEmpty() ? System.getProperty("user.dir") : fileDirectory;
-        Path dirPath = Paths.get(fileDirectory).toAbsolutePath().normalize();
-        Path resolvedReqPath = dirPath.resolve(reqPath.substring(1));
-        System.out.println("Resolved path: " + resolvedReqPath);
-        String path = resolvedReqPath.toString();
-        boolean isInsideRootDirectory = isFileInsideRootDirectory(path);
+        Path filePath = Paths.get(reqPath).toAbsolutePath().normalize();
+        Path rootDirectory = Paths.get(fileDirectory).toAbsolutePath().normalize();
+
+        boolean isInsideRootDirectory = filePath.startsWith(rootDirectory);
         if (isInsideRootDirectory) {
             System.out.println("The file is inside the root directory.");
             return true;
@@ -120,6 +105,7 @@ public class HttpServer {
         System.out.println("The file is outside the root directory.");
         return false;
     }
+
 
     private static void handleRequest(Socket clientSocket, boolean verbose) {
         try (InputStream in = clientSocket.getInputStream();
