@@ -31,7 +31,7 @@ public class HttpServer {
     private static int currentClientCount = 0;
 
     // TODO: initialize from server curl
-    private static String serverDirectoryPath = "/Users/vithu/Documents/GitHub/COMP6461F23-Networks/src";
+//    private static String serverDirectory = "/Users/vithu/Documents/GitHub/COMP6461F23-Networks/src";
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
@@ -143,7 +143,7 @@ public class HttpServer {
 
                         String overwriteOption = getOverwriteOption(headers);
                         // Requested file path
-                        String postTofilePath = serverDirectoryPath + requestedPath;
+                        String postTofilePath = serverDirectory + requestedPath;
 
                         if (createOrUpdateFile(postTofilePath, bodyContent, overwriteOption)) {
                             sendCreatedResponse(out);
@@ -174,11 +174,11 @@ public class HttpServer {
             System.out.println("Accept: " + acceptHeader);
             if (acceptHeader != "") {
                 for (String file : listOfFilesAndFolders) {
-                    if (file.endsWith(acceptHeader)) return serverDirectoryPath + path + file;
+                    if (file.endsWith(acceptHeader)) return serverDirectory + path + file;
                 }
             } else {
                 for (String file : listOfFilesAndFolders) {
-                    if (file.startsWith(fileName + ".")) return serverDirectoryPath + path + file;
+                    if (file.startsWith(fileName + ".")) return serverDirectory + path + file;
                     ;
                 }
 
@@ -313,7 +313,7 @@ public class HttpServer {
     private static List<String> listFilesAndDirectories(String currentPath) {
         System.out.println("Path sent to Function:" + currentPath);
 //        String currentDirectory = System.getProperty("user.dir");
-        String currentDirectory = serverDirectoryPath;
+        String currentDirectory = serverDirectory;
 //        System.out.println("Dir:" + currentDirectory);
 //        System.out.println("cur path: " + currentPath);
         File folder = new File(currentDirectory + currentPath);
