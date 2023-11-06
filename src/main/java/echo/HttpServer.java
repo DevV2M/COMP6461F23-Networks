@@ -1,6 +1,6 @@
 /**
  * COMP 6461 - Computer Networks and Protocols
- * Lab Assignment #2
+ * Lab Assignment # 2
  * Group Members:
  * Vithu Maheswaran - 27052715
  * Shafiq Imtiaz - 40159305
@@ -25,10 +25,8 @@ import java.util.regex.Pattern;
 public class HttpServer {
     private static final String commandPattern = "httpfs\\s+(-v)?\\s*(-p\\s\\d+)?\\s*(-d\\s\\S+)?";
     private static final Pattern commandRegex = Pattern.compile(commandPattern);
-
-    private static String serverDirectory;
-
     private static final AtomicInteger clientCount = new AtomicInteger(0);
+    private static String serverDirectory;
     private static Set<Thread> threadSet = new HashSet<>();
     private static int currentClientCount = 0;
 

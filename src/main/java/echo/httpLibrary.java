@@ -1,6 +1,6 @@
 /**
  * COMP 6461 - Computer Networks and Protocols
- * Lab Assignment #1
+ * Lab Assignment # 2
  * Group Members:
  * Vithu Maheswaran - 27052715
  * Shafiq Imtiaz - 40159305
@@ -44,7 +44,8 @@ public class httpLibrary {
                 System.out.println(response[1]);
             }
 
-            if (extractStatusCode(response[0]).compareTo("301") == 0 || extractStatusCode(response[0]).compareTo("302") == 0) {
+            if (extractStatusCode(response[0]).compareTo("301") == 0 ||
+                    extractStatusCode(response[0]).compareTo("302") == 0) {
                 System.out.println("--------------- Redirecting -----------------");
                 String url = extractLocation(response[0]);
 
@@ -70,7 +71,6 @@ public class httpLibrary {
     }
 
     public static void post(String data, String path, Socket socket, Map<String, String> headers, boolean verbose, String outputFilePath) throws IOException {
-
         System.out.println("URL: " + path);
         StringBuilder request = new StringBuilder()
                 .append(String.format("POST %s HTTP/1.0\r\n", path))
