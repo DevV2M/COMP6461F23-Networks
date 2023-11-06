@@ -128,7 +128,7 @@ public class HttpServer {
                 }
                 if (requestTokens.length == 3 && requestTokens[0].equals("GET")) {
                     String requestedPath = requestTokens[1];
-                    String acceptHeader = getAcceptHeader(reader);
+                    String acceptHeader = getAcceptHeader(reader).toLowerCase();
                     if (requestedPath.endsWith("/")) {
                         List<String> fileList = listFilesAndDirectories(requestedPath);
                         String response = generateResponse(fileList, acceptHeader);
@@ -136,11 +136,15 @@ public class HttpServer {
                     } else if (requestedPath.startsWith("/")) {
 
                         String filePathWithFileName = getFileNameWithPath(requestedPath, acceptHeader);
+                        System.out.println("Path Testing: " + filePathWithFileName);
                         if (Files.exists(Paths.get(filePathWithFileName))) {
-                            String fileContent = getFileContent(filePathWithFileName);
-
-                            String response = generateResponse(fileContent, acceptHeader);
-                            sendHttpResponse(out, response);
+                            try {
+                                String fileContent = getFileContent(filePathWithFileName);
+                                String response = generateResponse(fileContent, acceptHeader);
+                                sendHttpResponse(out, response);
+                            } catch (IOException e) {
+                                sendNotFoundResponse(out);
+                            }
                         } else {
                             sendNotFoundResponse(out);
                         }
@@ -178,7 +182,7 @@ public class HttpServer {
 
                         String overwriteOption = getOverwriteOption(headers);
                         // Requested file path
-                        String postTofilePath = serverDirectory + requestedPath;
+                        String postTofilePath = serverDirectoryPath + requestedPath;
 
                         if (createOrUpdateFile(postTofilePath, bodyContent, overwriteOption)) {
                             sendCreatedResponse(out);
@@ -200,31 +204,30 @@ public class HttpServer {
         // Define a regular expression pattern to match the part before the last '/'
         Pattern pattern = Pattern.compile("(.*/)(.*)");
         Matcher matcher = pattern.matcher(filePath);
-        System.out.println("Initial Path: " + filePath);
+
         if (matcher.find()) {
             String path = matcher.group(1);
-            System.out.println("Matched Substring: " + path);
             String fileName = matcher.group(2);
             List<String> listOfFilesAndFolders = listFilesAndDirectories(path);
-            System.out.println("Accept: " + acceptHeader);
-            if (acceptHeader != "") {
+            String extension = resolveAcceptHeader(acceptHeader);
+
+            if (extension != "") {
                 for (String file : listOfFilesAndFolders) {
-                    if (file.endsWith(acceptHeader)) return serverDirectory + path + file;
+                    if (file.startsWith(fileName) && file.endsWith(extension)) {
+                        return serverDirectoryPath + path + file;
+                    }
                 }
             } else {
                 for (String file : listOfFilesAndFolders) {
-                    if (file.startsWith(fileName + ".")) return serverDirectory + path + file;
-                    ;
+                    if (file.startsWith(fileName + ".")) {
+                        return serverDirectoryPath + path + file;
+                    }
                 }
-
             }
-
         } else {
             System.out.println("No match found.");
         }
-
         return "";
-
     }
 
     private static boolean checkIfMultipartFormData(List<String> headers) {
@@ -348,7 +351,7 @@ public class HttpServer {
     private static List<String> listFilesAndDirectories(String currentPath) {
         System.out.println("Path sent to Function:" + currentPath);
 //        String currentDirectory = System.getProperty("user.dir");
-        String currentDirectory = serverDirectory;
+        String currentDirectory = serverDirectoryPath;
 //        System.out.println("Dir:" + currentDirectory);
 //        System.out.println("cur path: " + currentPath);
         File folder = new File(currentDirectory + currentPath);
@@ -372,26 +375,21 @@ public class HttpServer {
 
     private static String getFileContent(String filePath) throws IOException {
         // Read and return the content of the file
-//        return new String(Files.readAllBytes(Paths.get(filePath)));
         StringBuilder content = new StringBuilder();
-        try {
-            // Create a FileReader and BufferedReader to read the file
-            FileReader fileReader = new FileReader(filePath);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
+        // Create a FileReader and BufferedReader to read the file
+        FileReader fileReader = new FileReader(filePath);
+        BufferedReader bufferedReader = new BufferedReader(fileReader);
 
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                content.append(line);
-                content.append("\n");
-                System.out.println(line);
-            }
-
-            // Close the resources when done
-            bufferedReader.close();
-            fileReader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        String line;
+        while ((line = bufferedReader.readLine()) != null) {
+            content.append(line);
+            content.append("\n");
+            System.out.println(line);
         }
+
+        // Close the resources when done
+        bufferedReader.close();
+        fileReader.close();
         return content.toString();
     }
 
@@ -410,7 +408,24 @@ public class HttpServer {
     private static String generateResponse(List<String> fileList, String acceptHeader) {
 
         StringBuilder listOfFiles = new StringBuilder();
+        String extension = resolveAcceptHeader(acceptHeader);
+
+        for (String file : fileList) {
+            if (extension.isEmpty()) {
+                listOfFiles.append(file);
+                listOfFiles.append("\n");
+            } else if (file.endsWith(extension)) {
+                listOfFiles.append(file);
+                listOfFiles.append("\n");
+            }
+        }
+        return listOfFiles.toString();
+    }
+
+    public static String resolveAcceptHeader(String acceptHeader) {
+
         String extension = "";
+
         if (acceptHeader != null) {
             switch (acceptHeader) {
                 case "json":
@@ -427,19 +442,12 @@ public class HttpServer {
                     break;
                 default:
                     extension = "";
-                    // code block
+                    break;
             }
         }
-        for (String file : fileList) {
-            if (extension.isEmpty()) {
-                listOfFiles.append(file);
-                listOfFiles.append("\n");
-            } else if (file.endsWith(extension)) {
-                listOfFiles.append(file);
-                listOfFiles.append("\n");
-            }
-        }
-        return listOfFiles.toString();
+
+        return extension;
+
     }
 
     private static String generateResponse(String content, String contentType) {
