@@ -36,7 +36,8 @@ public class HttpServer {
 //        Scanner sc = new Scanner(System.in);
 //        System.out.print(">> ");
 //        String command = sc.nextLine().trim();
-        String command = "httpfs -p 8080 -d D:\\GitHub\\COMP6461F23-Networks\\data";
+//        String command = "httpfs -p 8080 -d D:\\GitHub\\COMP6461F23-Networks\\data";
+        String command = "httpfs -p 8080";
         runCommand(command);
     }
 
@@ -49,7 +50,7 @@ public class HttpServer {
 
             boolean isVerbose = verboseFlag != null;
             int port = (portFlag != null) ? Integer.parseInt(portFlag.trim()) : 8080;
-            fileDirectory = (dirFlag != null) ? dirFlag.trim() : "";
+            fileDirectory = (dirFlag != null) ? dirFlag.trim() : System.getProperty("user.dir");
 
             System.out.println("-p: " + port + ", -d: " + fileDirectory + ", -v: " + isVerbose);
 
@@ -94,18 +95,22 @@ public class HttpServer {
     }
 
     public static boolean forbiddenPath(String reqPath) throws IOException {
-        Path filePath = Paths.get(reqPath).toAbsolutePath().normalize();
+
         Path rootDirectory = Paths.get(fileDirectory).toAbsolutePath().normalize();
+        Path filePath = rootDirectory.resolve(reqPath).normalize();
+
+        System.out.println("Requested path: " + reqPath);
+        System.out.println("Resolved file path: " + filePath);
+        System.out.println("Root directory: " + rootDirectory);
 
         boolean isInsideRootDirectory = filePath.startsWith(rootDirectory);
         if (isInsideRootDirectory) {
-            System.out.println("The file is inside the root directory.");
+            System.out.println("Inside root directory.");
             return true;
         }
-        System.out.println("The file is outside the root directory.");
+        System.out.println("Outside root directory.");
         return false;
     }
-
 
     private static void handleRequest(Socket clientSocket, boolean verbose) {
         try (InputStream in = clientSocket.getInputStream();
@@ -115,7 +120,7 @@ public class HttpServer {
             String requestLine = reader.readLine();
             if (requestLine != null) {
                 String[] requestTokens = requestLine.split(" ");
-                if (!forbiddenPath(requestTokens[1])) {
+                if (!forbiddenPath(requestTokens[1].substring(1))) {
                     sendForbiddenResponse(out);
                     return;
                 }
@@ -394,17 +399,17 @@ public class HttpServer {
     }
 
     private static void sendForbiddenResponse(OutputStream out) throws IOException {
-        String forbiddenResponse = "\r\n\r\nHTTP/1.1 403 Forbidden";
+        String forbiddenResponse = "\r\nHTTP/1.1 403 Forbidden";
         out.write(forbiddenResponse.getBytes());
     }
 
     private static void sendNotFoundResponse(OutputStream out) throws IOException {
-        String notFoundResponse = "\r\n\r\nHTTP/1.1 404 Not Found";
+        String notFoundResponse = "\r\nHTTP/1.1 404 Not Found";
         out.write(notFoundResponse.getBytes());
     }
 
     private static void sendCreatedResponse(OutputStream out) throws IOException {
-        String createdResponse = "\r\n\r\nHTTP/1.1 201 Created";
+        String createdResponse = "\r\nHTTP/1.1 201 Created";
         out.write(createdResponse.getBytes());
     }
 }
