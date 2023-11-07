@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
@@ -27,19 +28,17 @@ import java.util.regex.Pattern;
 public class HttpServer {
     private static final String commandPattern = "httpfs\\s+(-v)?\\s*(-p\\s\\d+)?\\s*(-d\\s\\S+)?";
     private static final Pattern commandRegex = Pattern.compile(commandPattern);
-
     private static String serverDirectoryPath;
     private static List<Thread> threadList = new ArrayList<>();
     private static AtomicInteger currentClientCount = new AtomicInteger(0);
 
 
     public static void main(String[] args) {
-        // TODO change to args
-//        Scanner sc = new Scanner(System.in);
-//        System.out.print(">> ");
-//        String command = sc.nextLine().trim();
-//        String command = "httpfs -p 8080 -d D:\\GitHub\\COMP6461F23-Networks\\data";
-        String command = "httpfs -p 8080";
+//        String currentDirectory = System.getProperty("user.dir");
+//        String command = "httpfs -p 8080 -d " + currentDirectory;
+        Scanner sc = new Scanner(System.in);
+        System.out.print(">> ");
+        String command = sc.nextLine().trim();
         runCommand(command);
     }
 
@@ -53,12 +52,10 @@ public class HttpServer {
             boolean isVerbose = verboseFlag != null;
             int port = (portFlag != null) ? Integer.parseInt(portFlag.trim()) : 8080;
             serverDirectoryPath = (dirFlag != null) ? dirFlag.trim() : System.getProperty("user.dir");
-
-            System.out.println("-p: " + port + ", -d: " + serverDirectoryPath + ", -v: " + isVerbose);
+            String dirPath = new File(serverDirectoryPath).getAbsolutePath();
 
             try (ServerSocket serverSocket = new ServerSocket(port)) {
-                System.out.println("Server is listening on port " + port);
-
+                System.out.println("Server is listening on port " + port + " at directory " + dirPath);
                 while (true) {
                     Socket clientSocket = serverSocket.accept();
                     CountDownLatch latch = new CountDownLatch(1);
@@ -96,22 +93,10 @@ public class HttpServer {
         return clientThreads;
     }
 
-    public static boolean forbiddenPath(String reqPath) throws IOException {
-
+    public static boolean validPath(String reqPath) throws IOException {
         Path rootDirectory = Paths.get(serverDirectoryPath).toAbsolutePath().normalize();
         Path filePath = rootDirectory.resolve(reqPath).normalize();
-
-        System.out.println("Requested path: " + reqPath);
-        System.out.println("Resolved file path: " + filePath);
-        System.out.println("Root directory: " + rootDirectory);
-
-        boolean isInsideRootDirectory = filePath.startsWith(rootDirectory);
-        if (isInsideRootDirectory) {
-            System.out.println("Inside root directory.");
-            return true;
-        }
-        System.out.println("Outside root directory.");
-        return false;
+        return filePath.startsWith(rootDirectory) ? true : false;
     }
 
     private static void handleRequest(Socket clientSocket, boolean verbose) {
@@ -122,7 +107,7 @@ public class HttpServer {
             String requestLine = reader.readLine();
             if (requestLine != null) {
                 String[] requestTokens = requestLine.split(" ");
-                if (!forbiddenPath(requestTokens[1].substring(1))) {
+                if (!validPath(requestTokens[1].substring(1))) {
                     sendForbiddenResponse(out);
                     return;
                 }
@@ -130,22 +115,24 @@ public class HttpServer {
                     String requestedPath = requestTokens[1];
                     String acceptHeader = getAcceptHeader(reader).toLowerCase();
                     if (requestedPath.endsWith("/")) {
-                        List<String> fileList = listFilesAndDirectories(requestedPath);
-                        String response = generateResponse(fileList, acceptHeader);
-                        sendHttpResponse(out, response);
+                        try {
+                            List<String> fileList = listFilesAndDirectories(requestedPath);
+                            String response = generateResponse(fileList, acceptHeader);
+                            sendHttpResponse(out, response);
+                        } catch (IOException e) {
+                            sendNotFoundResponse(out);
+                        }
                     } else if (requestedPath.startsWith("/")) {
-
-                        String filePathWithFileName = getFileNameWithPath(requestedPath, acceptHeader);
-                        System.out.println("Path Testing: " + filePathWithFileName);
-                        if (Files.exists(Paths.get(filePathWithFileName))) {
-                            try {
+                        try {
+                            String filePathWithFileName = getFileNameWithPath(requestedPath, acceptHeader);
+                            if (Files.exists(Paths.get(filePathWithFileName))) {
                                 String fileContent = getFileContent(filePathWithFileName);
                                 String response = generateResponse(fileContent, acceptHeader);
                                 sendHttpResponse(out, response);
-                            } catch (IOException e) {
+                            } else {
                                 sendNotFoundResponse(out);
                             }
-                        } else {
+                        } catch (IOException e) {
                             sendNotFoundResponse(out);
                         }
                     } else {
@@ -199,7 +186,7 @@ public class HttpServer {
         }
     }
 
-    private static String getFileNameWithPath(String filePath, String acceptHeader) {
+    private static String getFileNameWithPath(String filePath, String acceptHeader) throws IOException {
 
         // Define a regular expression pattern to match the part before the last '/'
         Pattern pattern = Pattern.compile("(.*/)(.*)");
@@ -278,7 +265,6 @@ public class HttpServer {
         // Define the regular expression pattern to extract the boundary parameter from the Content-Type header
         Pattern pattern = Pattern.compile("Content-Type:.*?boundary=([\\w\\-]+)");
         for (String header : headers) {
-            System.out.println(header);
             if (header.startsWith("Content-Type")) {
                 Matcher matcher = pattern.matcher(header);
                 if (matcher.find()) {
@@ -293,7 +279,6 @@ public class HttpServer {
         // Define the regular expression pattern to extract the boundary parameter from the Content-Type header
         Pattern pattern = Pattern.compile("Content-Type:.*?boundary=([\\w\\-]+)");
         for (String header : headers) {
-            System.out.println(header);
             if (header.startsWith("Content-Type")) {
                 Matcher matcher = pattern.matcher(header);
                 if (matcher.find()) {
@@ -327,8 +312,7 @@ public class HttpServer {
         return headers;
     }
 
-    // TODO: NEED TO FIX TO READ AND WRITE
-    private static boolean createOrUpdateFile(String filePath, String content, String overwriteOption) throws IOException {
+    private static synchronized boolean createOrUpdateFile(String filePath, String content, String overwriteOption) throws IOException {
         if ("false".equalsIgnoreCase(overwriteOption) && Files.exists(Paths.get(filePath))) {
             return false;
         }
@@ -348,26 +332,16 @@ public class HttpServer {
         return true;
     }
 
-    private static List<String> listFilesAndDirectories(String currentPath) {
-        System.out.println("Path sent to Function:" + currentPath);
-//        String currentDirectory = System.getProperty("user.dir");
+    private static List<String> listFilesAndDirectories(String currentPath) throws IOException {
         String currentDirectory = serverDirectoryPath;
-//        System.out.println("Dir:" + currentDirectory);
-//        System.out.println("cur path: " + currentPath);
         File folder = new File(currentDirectory + currentPath);
-//        File folder = new File(serverDirectoryPath + currentPath);
 
         List<String> fileList = new ArrayList<>();
-        try {
-            try (DirectoryStream<Path> stream = Files.newDirectoryStream(Path.of(folder.getAbsolutePath()))) {
-                for (Path path : stream) {
-                    if (Files.isRegularFile(path) || Files.isDirectory(path)) {
-                        fileList.add(path.getFileName().toString());
-                    }
-                }
+        DirectoryStream<Path> stream = Files.newDirectoryStream(Path.of(folder.getAbsolutePath()));
+        for (Path path : stream) {
+            if (Files.isRegularFile(path) || Files.isDirectory(path)) {
+                fileList.add(path.getFileName().toString());
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         return fileList;
     }
@@ -384,7 +358,6 @@ public class HttpServer {
         while ((line = bufferedReader.readLine()) != null) {
             content.append(line);
             content.append("\n");
-            System.out.println(line);
         }
 
         // Close the resources when done

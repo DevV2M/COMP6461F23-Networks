@@ -25,29 +25,29 @@ public class cURLClient {
     // httpc help get
     // httpc help post
 
-    // Get
+    // GET A1
     // httpc get -v -h Content-Type:application/json 'http://httpbin.org/get?course=networking&assignment=1'
     // httpc get -v http://httpbin.org/status/418
     // httpc get http://httpbin.org/status/418
     // httpc get -v http://httpbin.org/status/418 -o ./teapot.txt
 
-    // Get A2 test commands
+    // Redirect sample: httpc get -v http://httpbin.org/status/301
+    // httpc get -v http://httpbin.org/status/304
+    // Redirect post: httpc post -v --d '{:}' http://httpbin.org/status/301
+
+    // POST in-line data A1
+    // httpc post -v -h Content-Type:application/json --d '{"Assignment": 1,"Vithu": 1}' http://httpbin.org/post
+    // httpc post -v -h Content-Type:application/json --d '{"Assignment": 1,"Vithu": "Student"}' http://httpbin.org/post
+    // httpc post -v -h Content-Type:application/json --d 'hello' http://httpbin.org/post
+
+    // GET A2
     // httpc get 'http://localhost:8080/teapot.txt'
     // httpc get 'http://localhost:8080/text.txt'
     // httpc get 'http://localhost:8080/src/text.txt'
     // httpc get 'http://localhost:8080/Users/vithu/Documents/GitHub/COMP6461F23-Networks/src/text.txt'
     // httpc get -v -h Content-Type:application/json 'http://localhost:8080/
 
-    // Redirect sample: httpc get -v http://httpbin.org/status/301
-    // httpc get -v http://httpbin.org/status/304
-    // Redirect post: httpc post -v --d '{:}' http://httpbin.org/status/301
-
-    // Post in-line data:
-    // httpc post -v -h Content-Type:application/json --d '{"Assignment": 1,"Vithu": 1}' http://httpbin.org/post
-    // httpc post -v -h Content-Type:application/json --d '{"Assignment": 1,"Vithu": "Student"}' http://httpbin.org/post
-    // httpc post -v -h Content-Type:application/json --d 'hello' http://httpbin.org/post
-
-    // Post file A2
+    // POST A2
     // httpc post -v -f ./text.txt http://localhost:8080/postFileTest.txt
     // httpc post -v --d 'hello' http://localhost:8080/postFileTest.txt
 
