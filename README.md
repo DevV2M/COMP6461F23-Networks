@@ -88,8 +88,8 @@
 - `httpc get http://localhost:8080/`
 - `httpc get -v http://localhost:8080/teapot` // teapot.txt when -d not specified
 - `httpc get -v http://localhost:8080/text` // text.txt when -d not specified
-- `httpc get -v -h Content-Type:application/json http://localhost:8080/`
 - `httpc get -v -h Accept:text/plain http://localhost:8080/`
+- `httpc get -v -h Accept:text/plain http://localhost:8080/teapot`
 
 ## POST
 
