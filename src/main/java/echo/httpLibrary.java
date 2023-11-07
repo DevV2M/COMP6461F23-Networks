@@ -32,7 +32,6 @@ public class httpLibrary {
             BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF8"));
             BufferedReader rd = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-            System.out.println("Request: \n" + request);
             writeToSocket(wr, request.toString());
             String[] response = readFromSocket(rd);
 
@@ -48,8 +47,6 @@ public class httpLibrary {
                     extractStatusCode(response[0]).compareTo("302") == 0) {
                 System.out.println("--------------- Redirecting -----------------");
                 String url = extractLocation(response[0]);
-
-                System.out.println("Break Point 2");
 
                 String newURL = "http://" + socket.getInetAddress().getHostName() + url;
                 get(url, getSocket(newURL), headers, verbose, outputFilePath);
@@ -71,12 +68,11 @@ public class httpLibrary {
     }
 
     public static void post(String data, String path, Socket socket, Map<String, String> headers, boolean verbose, String outputFilePath) throws IOException {
-        System.out.println("URL: " + path);
+
         StringBuilder request = new StringBuilder()
                 .append(String.format("POST %s HTTP/1.0\r\n", path))
                 .append(String.format("Content-Length: %s\r\n", data.length()));
 
-        System.out.println();
         // Add custom headers to the request
         for (Map.Entry<String, String> entry : headers.entrySet()) {
             request.append(entry.getKey()).append(": ").append(entry.getValue()).append("\r\n");
@@ -87,8 +83,6 @@ public class httpLibrary {
         BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF8"));
         BufferedReader rd = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-        System.out.println("Request: \n" + request.toString());
-        System.out.println("End Request");
         writeToSocket(wr, request.toString());
         String[] response = readFromSocket(rd);
 
@@ -123,13 +117,9 @@ public class httpLibrary {
             String boundary = "----WebKitFormBoundary" + Long.toHexString(System.currentTimeMillis());
             String requestBody = getRequestBodyForPostFile(filePath, boundary);
             String requestHeader = getRequestHeaderForPostFile(url, socket, requestBody.getBytes().length, headers, boundary);
-            System.out.println("Request Header: \n" + requestHeader);
-            System.out.println("Request Body: \n" + requestBody);
 
             // Post the request with file content
             String combinedRequest = requestHeader + requestBody;
-//            os.write(requestHeader.getBytes());
-//            os.write(requestBody.getBytes());
             os.write(combinedRequest.getBytes());
             os.flush();
 

@@ -41,6 +41,7 @@ public class cURLClient {
     // httpc post -v -h Content-Type:application/json --d 'hello' http://httpbin.org/post
 
     // GET A2
+    // httpc get 'http://localhost:8080/'
     // httpc get 'http://localhost:8080/teapot.txt'
     // httpc get 'http://localhost:8080/text.txt'
     // httpc get 'http://localhost:8080/src/text.txt'
@@ -95,7 +96,7 @@ public class cURLClient {
             String inlineData = postMatcher.group(3);
             String fileFlag = postMatcher.group(4);
             String url = postMatcher.group(5).trim();
-            System.out.println(url);
+
             Socket clientSocket = httpLibrary.getSocket(url);
             String outputFile = postMatcher.group(6);
             if (inlineData != null) {
@@ -107,7 +108,7 @@ public class cURLClient {
             String verboseFlag = getMatcher.group(1);
             String headerData = getMatcher.group(2);
             String url = getMatcher.group(3).trim();
-            System.out.println(url);
+
             Socket clientSocket = httpLibrary.getSocket(url);
             String outputFile = getMatcher.group(4);
             httpLibrary.get(httpLibrary.getPathToResource(url), clientSocket, getHeaders(headerData), (verboseFlag != null), outputFile);
