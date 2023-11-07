@@ -41,6 +41,7 @@ public class cURLClient {
     // httpc post -v -h Content-Type:application/json --d 'hello' http://httpbin.org/post
 
     // GET A2
+    // httpfs -p 8080 -d /Users/vithu/Documents/GitHub/COMP6461F23-Networks
     // httpc get 'http://localhost:8080/'
     // httpc get 'http://localhost:8080/teapot.txt'
     // httpc get 'http://localhost:8080/text.txt'
