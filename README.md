@@ -2,14 +2,10 @@
 
 ## Lab Assignment
 
----
-
 ### Group Members:
 
 - Vithu Maheswaran - 27052715
 - Shafiq Imtiaz - 40159305
-
----
 
 ## Structure
 
@@ -27,6 +23,8 @@
 ```
 
 ## COMMANDS
+
+---
 
 # A1 - HTTP LIBRARY + CURL CLIENT
 
