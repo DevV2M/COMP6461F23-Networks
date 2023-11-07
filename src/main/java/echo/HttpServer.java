@@ -34,8 +34,6 @@ public class HttpServer {
 
 
     public static void main(String[] args) {
-//        String currentDirectory = System.getProperty("user.dir");
-//        String command = "httpfs -p 8080 -d " + currentDirectory;
         Scanner sc = new Scanner(System.in);
         System.out.print(">> ");
         String command = sc.nextLine().trim();
@@ -232,12 +230,10 @@ public class HttpServer {
     }
 
     private static String extractBodyContent(String boundary, String requestBody) throws IOException {
-
         if (boundary != null) {
             // Construct the regular expression pattern to match the content between the boundary lines
             String regex = Pattern.quote(boundary) + "(.*?)" + Pattern.quote(boundary);
             Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
-
             // Use the pattern to match and extract the POST command body
             Matcher matcher = pattern.matcher(requestBody);
 
@@ -262,20 +258,6 @@ public class HttpServer {
     }
 
     private static String extractBoundaryFromHeader(List<String> headers) {
-        // Define the regular expression pattern to extract the boundary parameter from the Content-Type header
-        Pattern pattern = Pattern.compile("Content-Type:.*?boundary=([\\w\\-]+)");
-        for (String header : headers) {
-            if (header.startsWith("Content-Type")) {
-                Matcher matcher = pattern.matcher(header);
-                if (matcher.find()) {
-                    return matcher.group(1);
-                }
-            }
-        }
-        return null;
-    }
-
-    private static String extractFilePathFromBody(List<String> headers) {
         // Define the regular expression pattern to extract the boundary parameter from the Content-Type header
         Pattern pattern = Pattern.compile("Content-Type:.*?boundary=([\\w\\-]+)");
         for (String header : headers) {
