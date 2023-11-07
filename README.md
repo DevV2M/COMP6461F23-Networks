@@ -88,15 +88,13 @@
 - `httpc get http://localhost:8080/`
 - `httpc get -v http://localhost:8080/teapot` // teapot.txt when -d not specified
 - `httpc get -v http://localhost:8080/text` // text.txt when -d not specified
-- `httpc get -v -h Content-Type:application/json http://localhost:8080/`
 - `httpc get -v -h Accept:text/plain http://localhost:8080/`
+- `httpc get -v -h Accept:text/plain http://localhost:8080/teapot`
 
 ## POST
 
-- `httpc post -v -f ./pikachu.txt 'http://localhost:8080/postFile.txt'` // post pikachu.txt to
-  postFile.txt
-- `httpc post -v --d 'Hello Pikachu' 'http://localhost:8080/postFile.txt'` // post 'hello' to
-  postFile.txt
+- `httpc post -v -f ./pikachu.txt 'http://localhost:8080/postFile.txt'`
+- `httpc post -v --d 'Hello Pikachu' 'http://localhost:8080/postFile.txt'`
 
 ---
 
