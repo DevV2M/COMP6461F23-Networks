@@ -15,18 +15,20 @@
 
 ```
 <root>
+├── data
 ├── src
 │   └── main
 │       └── java
 │           └── echo
 │               ├── cURLClient.java
 │               └── httpLibrary.java
+│               └── HttpServer.java
 └── README.MD
 ```
 
 ## COMMANDS
 
----
+# A1 - HTTP LIBRARY + CURL CLIENT
 
 ### Help
 
@@ -65,14 +67,35 @@
 
 - `httpc post -v --d '{:}' http://httpbin.org/status/301`
 
----
-
 ## ADDITIONAL TESTING API
 
 ### [Postman Collection](https://www.postman.com/postman/workspace/published-postman-templates/folder/631643-9a4c3bce-30f7-a496-c9ec-78afecbf1545?ctx=documentation)
 
 - `httpc get -v http://postman-echo.com/get?foo1=bar1&foo2=bar2`
 - `httpc post -v --d '{:}' http://postman-echo.com/post`
+
+---
+
+# A2 - HTTP SERVER
+
+## Start the http server
+
+- `httpfs -p 8080` // default directory is the current directory
+- `httpfs -p 8080 -d data` // custom directory
+
+## GET
+
+- `httpc get http://localhost:8080/`
+- `httpc get -v http://localhost:8080/teapot.txt`
+- `httpc get -v http://localhost:8080/text.txt`
+- `httpc get -v -h Content-Type:application/json http://localhost:8080/`
+- `httpc get -v -h Accept:text/plain http://localhost:8080/`
+
+## POST
+
+- `httpc post -v -f ./pikachu.txt 'http://localhost:8080/postFile.txt'` // post pikachu.txt to
+  postFile.txt
+- `httpc post -v --d 'hello' 'http://localhost:8080/postFile.txt'` // post 'hello' to postFile.txt
 
 ---
 
@@ -83,23 +106,16 @@ or you can create a JAR file and run it from the command line.
 
 ## Using JAR
 
-1. Navigate to the project source directory
-   `cd out/artifacts/httpc_jar`
-2. Run the application using the JAR file
-   `java -jar httpc.jar`
+1. Navigate to the project source directory `cd out/artifacts/httpc_jar`
+2. Run the application using the JAR file `java -jar httpc.jar`
 
 ## Using with Command Line
 
-1. Navigate to the project source directory
-   `cd src/main/java/echo`
+1. Navigate to the project source directory `cd src/main/java/echo`
 2. Compile the source code
-   `javac httpLibrary.java cURLClient.java`
 3. Create a manifest file named manifest.txt with the following content:
-   `echo "Main-Class: echo.cURLClient" > manifest.txt`
 4. Package the compiled code and manifest into a JAR file
-   `jar cvfm httpc.jar manifest.txt httpLibrary.class cURLClient.class`
 5. Run the application using the JAR file
-   `java -jar httpc.jar`
 
 ## Requirement
 
