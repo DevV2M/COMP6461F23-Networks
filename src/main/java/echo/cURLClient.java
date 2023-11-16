@@ -1,6 +1,6 @@
 /**
  * COMP 6461 - Computer Networks and Protocols
- * Lab Assignment #1
+ * Lab Assignment # 2
  * Group Members:
  * Vithu Maheswaran - 27052715
  * Shafiq Imtiaz - 40159305
@@ -46,7 +46,6 @@ public class cURLClient {
     // httpc get 'http://localhost:8080/teapot.txt'
     // httpc get 'http://localhost:8080/text.txt'
     // httpc get 'http://localhost:8080/src/text.txt'
-    // httpc get 'http://localhost:8080/Users/vithu/Documents/GitHub/COMP6461F23-Networks/src/text.txt'
     // httpc get -v -h Content-Type:application/json 'http://localhost:8080/
 
     // POST A2

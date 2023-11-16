@@ -2,14 +2,10 @@
 
 ## Lab Assignment
 
----
-
 ### Group Members:
 
 - Vithu Maheswaran - 27052715
 - Shafiq Imtiaz - 40159305
-
----
 
 ## Structure
 
@@ -27,6 +23,8 @@
 ```
 
 ## COMMANDS
+
+---
 
 # A1 - HTTP LIBRARY + CURL CLIENT
 
@@ -93,10 +91,8 @@
 
 ## POST
 
-- `httpc post -v -f ./pikachu.txt 'http://localhost:8080/postFile.txt'` // post pikachu.txt to
-  postFile.txt
-- `httpc post -v --d 'Hello Pikachu' 'http://localhost:8080/postFile.txt'` // post 'hello' to
-  postFile.txt
+- `httpc post -v -f ./pikachu.txt 'http://localhost:8080/postFile.txt'`
+- `httpc post -v --d 'Hello Pikachu' 'http://localhost:8080/postFile.txt'`
 
 ---
 
