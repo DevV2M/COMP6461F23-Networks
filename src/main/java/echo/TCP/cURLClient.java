@@ -6,7 +6,7 @@
  * Shafiq Imtiaz - 40159305
  */
 
-package echo;
+package echo.TCP;
 
 import java.io.IOException;
 import java.net.Socket;
