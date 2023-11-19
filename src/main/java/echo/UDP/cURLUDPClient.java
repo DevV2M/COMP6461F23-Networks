@@ -98,12 +98,12 @@ public class cURLUDPClient {
             String fileFlag = postMatcher.group(4);
             String url = postMatcher.group(5).trim();
 
-            Socket clientSocket = httpUDPLibrary.getSocket(url);
+            Socket clientSocket = HttpClientLibrary.getSocket(url);
             String outputFile = postMatcher.group(6);
             if (inlineData != null) {
-                httpUDPLibrary.post(inlineData.trim(), httpUDPLibrary.getPathToResource(url), clientSocket, getHeaders(headerData), (verboseFlag != null), outputFile);
+                HttpClientLibrary.post(inlineData.trim(), HttpClientLibrary.getPathToResource(url), clientSocket, getHeaders(headerData), (verboseFlag != null), outputFile);
             } else if (fileFlag != null) {
-                httpUDPLibrary.postFile(httpUDPLibrary.getPathToResource(url), fileFlag.trim(), clientSocket, getHeaders(headerData), (verboseFlag != null), outputFile);
+                HttpClientLibrary.postFile(HttpClientLibrary.getPathToResource(url), fileFlag.trim(), clientSocket, getHeaders(headerData), (verboseFlag != null), outputFile);
             }
         } else if (getMatcher.find()) {
             String verboseFlag = getMatcher.group(1);
@@ -115,7 +115,7 @@ public class cURLUDPClient {
             URL urlObject = new URL(url);
             String hostName = urlObject.getHost();
             String outputFile = getMatcher.group(4);
-            httpUDPLibrary.get(httpUDPLibrary.getPathToResource(url), hostName, getHeaders(headerData), (verboseFlag != null), outputFile);
+            HttpClientLibrary.get(HttpClientLibrary.getPathToResource(url), hostName, getHeaders(headerData), (verboseFlag != null), outputFile);
         } else {
             System.out.println("Invalid command: " + curlCommand);
         }

@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class httpUDPLibrary {
+public class HttpClientLibrary {
 
     public static void get(String path, String hostName, Map<String, String> headers, boolean verbose, String outputFilePath) {
 

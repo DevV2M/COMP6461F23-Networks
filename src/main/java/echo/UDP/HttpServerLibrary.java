@@ -21,14 +21,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class HttpUDPServer {
+public class HttpServerLibrary {
     private static final String commandPattern = "httpfs\\s+(-v)?\\s*(-p\\s\\d+)?\\s*(-d\\s\\S+)?";
     private static final Pattern commandRegex = Pattern.compile(commandPattern);
     private static String serverDirectoryPath = System.getProperty("user.dir");
     private static List<Thread> threadList = new ArrayList<>();
     private static AtomicInteger currentClientCount = new AtomicInteger(0);
 
-    public HttpUDPServer() {
+    public HttpServerLibrary() {
     }
 
 //    public static void main(String[] args) {

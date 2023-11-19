@@ -82,7 +82,7 @@ public class UDPClient {
             }
 
             long startTime = System.currentTimeMillis();
-            long timeoutMillis = 5000; // Adjust the timeout as needed
+            long timeoutMillis = 10000; // Adjust the timeout as needed
 
             while (System.currentTimeMillis() - startTime < timeoutMillis) {
                 selector.select(timeoutMillis);

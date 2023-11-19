@@ -31,8 +31,9 @@ public class UDPServer {
             ByteBuffer buf = ByteBuffer
                     .allocate(Packet.MAX_LEN)
                     .order(ByteOrder.BIG_ENDIAN);
-            StringBuilder msg = new StringBuilder();
+
             for (; ; ) {
+                StringBuilder request = new StringBuilder();
                 buf.clear();
                 SocketAddress router = channel.receive(buf);
 
@@ -42,7 +43,7 @@ public class UDPServer {
                 buf.flip();
 
                 String payloadReceived = new String(packet.getPayload(), UTF_8);
-                msg.append(payloadReceived);
+                request.append(payloadReceived);
                 logger.info("Packet: {}", packet);
                 logger.info("Payload: {}", payloadReceived);
                 logger.info("Router: {}", router);
@@ -59,7 +60,7 @@ public class UDPServer {
 
                 /**    **/
 
-                ByteBuffer buffer = ByteBuffer.wrap(HttpUDPServer.handleRequest(msg.toString()).getBytes(StandardCharsets.UTF_8));
+                ByteBuffer buffer = ByteBuffer.wrap(HttpServerLibrary.handleRequest(request.toString()).getBytes(StandardCharsets.UTF_8));
 
                 while (buffer.hasRemaining()) {
                     int remaining = buffer.remaining();
@@ -70,7 +71,7 @@ public class UDPServer {
 
                     int sequenceNumber = sequenceNumberCount % 10;
                     sequenceNumberCount++;
-                    
+
                     resp = packet.toBuilder()
                             .setPayload(payload).setSequenceNumber(sequenceNumber)
                             .create();
@@ -92,8 +93,6 @@ public class UDPServer {
 
                 /**    **/
 
-
-                break;
             }
 
         }
