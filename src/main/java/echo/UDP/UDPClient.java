@@ -19,6 +19,8 @@ import static java.nio.channels.SelectionKey.OP_READ;
 
 public class UDPClient {
 
+    private static int sequenceNumberCount = 0;
+
     //    private static final Logger logger = LoggerFactory.getLogger(UDPClient.class);
 //
 //    private static void runClient(SocketAddress routerAddr, InetSocketAddress serverAddr) throws IOException {
@@ -50,9 +52,11 @@ public class UDPClient {
                 byte[] payload = new byte[packetSize];
                 buffer.get(payload);
 
+                int sequenceNumber = sequenceNumberCount % 10;
+                sequenceNumberCount++;
                 Packet p = new Packet.Builder()
                         .setType(0)
-                        .setSequenceNumber(1L)
+                        .setSequenceNumber(sequenceNumber)
                         .setPortNumber(serverAddr.getPort())
                         .setPeerAddress(serverAddr.getAddress())
                         .setPayload(payload)
