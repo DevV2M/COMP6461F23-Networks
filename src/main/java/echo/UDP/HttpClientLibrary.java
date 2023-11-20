@@ -72,7 +72,7 @@ public class HttpClientLibrary {
         }
     }
 
-    public static void post(String data, String path, Socket socket, Map<String, String> headers, boolean verbose, String outputFilePath) throws IOException {
+    public static void post(String data, String path, String hostName, Map<String, String> headers, boolean verbose, String outputFilePath) throws IOException {
 
         StringBuilder request = new StringBuilder()
                 .append(String.format("POST %s HTTP/1.0\r\n", path))
@@ -85,68 +85,71 @@ public class HttpClientLibrary {
         request.append("\r\n");
         request.append(data);
 
-        BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF8"));
-        BufferedReader rd = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        UDPClient client = new UDPClient(request.toString());
 
-        writeToSocket(wr, request.toString());
-        String[] response = readFromSocket(rd);
-
-        if (verbose) {
-            for (String str : response) {
-                System.out.println(str);
-            }
-        } else {
-            System.out.println(response[1]);
-        }
-
-        if (extractStatusCode(response[0]).compareTo("301") == 0 || extractStatusCode(response[0]).compareTo("302") == 0) {
-            System.out.println("--------------- Redirecting -----------------");
-            String url = extractLocation(response[0]);
-            String newURL = "http://" + socket.getInetAddress().getHostName() + url;
-            post(data, url, getSocket(newURL), headers, verbose, outputFilePath);
-
-        }
-
-        // Option Task 2: Write response body to file
-        if (outputFilePath != null) {
-            writeResponseBodyToFile(response[1], outputFilePath);
-        }
-
-        wr.close();
-        rd.close();
+//        BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF8"));
+//        BufferedReader rd = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//
+//        writeToSocket(wr, request.toString());
+//        String[] response = readFromSocket(rd);
+//
+//        if (verbose) {
+//            for (String str : response) {
+//                System.out.println(str);
+//            }
+//        } else {
+//            System.out.println(response[1]);
+//        }
+//
+//        if (extractStatusCode(response[0]).compareTo("301") == 0 || extractStatusCode(response[0]).compareTo("302") == 0) {
+//            System.out.println("--------------- Redirecting -----------------");
+//            String url = extractLocation(response[0]);
+//            String newURL = "http://" + socket.getInetAddress().getHostName() + url;
+//            post(data, url, getSocket(newURL), headers, verbose, outputFilePath);
+//
+//        }
+//
+//        // Option Task 2: Write response body to file
+//        if (outputFilePath != null) {
+//            writeResponseBodyToFile(response[1], outputFilePath);
+//        }
+//
+//        wr.close();
+//        rd.close();
     }
 
-    public static void postFile(String url, String filePath, Socket socket, Map<String, String> headers, Boolean verbose, String outputFilePath) {
+    public static void postFile(String url, String filePath, String hostname, Map<String, String> headers, Boolean verbose, String outputFilePath) {
 
-        try (OutputStream os = socket.getOutputStream()) {
+        try {
             String boundary = "----WebKitFormBoundary" + Long.toHexString(System.currentTimeMillis());
             String requestBody = getRequestBodyForPostFile(filePath, boundary);
-            String requestHeader = getRequestHeaderForPostFile(url, socket, requestBody.getBytes().length, headers, boundary);
+            String requestHeader = getRequestHeaderForPostFile(url, hostname, requestBody.getBytes().length, headers, boundary);
 
             // Post the request with file content
             String combinedRequest = requestHeader + requestBody;
-            os.write(combinedRequest.getBytes());
-            os.flush();
+            UDPClient client = new UDPClient(combinedRequest);
+//            os.write(combinedRequest.getBytes());
+//            os.flush();
 
             // Read and print the response
-            BufferedReader rd = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            String[] response = readFromSocket(rd);
+//            BufferedReader rd = new BufferedReader(new InputStreamReader(getSocket(url).getInputStream()));
+//            String[] response = readFromSocket(rd);
 
-            if (verbose) {
-                for (String str : response) {
-                    System.out.println(str);
-                }
-            } else {
-                System.out.println(response[1]);
-            }
-
-            // Option Task 2: Write response body to file
-            if (outputFilePath != null) {
-                writeResponseBodyToFile(response[1], outputFilePath);
-            }
-
-            os.close();
-            rd.close();
+//            if (verbose) {
+//                for (String str : response) {
+//                    System.out.println(str);
+//                }
+//            } else {
+//                System.out.println(response[1]);
+//            }
+//
+//            // Option Task 2: Write response body to file
+//            if (outputFilePath != null) {
+//                writeResponseBodyToFile(response[1], outputFilePath);
+//            }
+//
+//            os.close();
+//            rd.close();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -154,7 +157,7 @@ public class HttpClientLibrary {
     }
 
     private static String getRequestBodyForPostFile(String filePath, String boundary) throws IOException {
-
+        System.out.println(filePath);
         FileInputStream fis = new FileInputStream(filePath);
         byte[] buffer = new byte[8192];
         int bytesRead;
@@ -178,11 +181,11 @@ public class HttpClientLibrary {
         return requestBodyBuilder.toString();
     }
 
-    private static String getRequestHeaderForPostFile(String path, Socket socket, int size, Map<String, String> headers, String boundary) {
+    private static String getRequestHeaderForPostFile(String path, String hostname, int size, Map<String, String> headers, String boundary) {
 
         StringBuilder requestHeader = new StringBuilder();
         requestHeader.append("POST " + path + " HTTP/1.0\r\n")
-                .append(String.format("Host: %s\r\n", socket.getInetAddress().getHostName()));
+                .append(String.format("Host: %s\r\n", hostname));
 
         // Add custom headers to the request
         for (Map.Entry<String, String> entry : headers.entrySet()) {

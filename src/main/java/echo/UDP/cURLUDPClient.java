@@ -9,7 +9,6 @@
 package echo.UDP;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -97,13 +96,16 @@ public class cURLUDPClient {
             String inlineData = postMatcher.group(3);
             String fileFlag = postMatcher.group(4);
             String url = postMatcher.group(5).trim();
-
-            Socket clientSocket = HttpClientLibrary.getSocket(url);
             String outputFile = postMatcher.group(6);
+
+            // Socket clientSocket = HttpClientLibrary.getSocket(url);
+            URL urlObject = new URL(url);
+            String hostName = urlObject.getHost();
+
             if (inlineData != null) {
-                HttpClientLibrary.post(inlineData.trim(), HttpClientLibrary.getPathToResource(url), clientSocket, getHeaders(headerData), (verboseFlag != null), outputFile);
+                HttpClientLibrary.post(inlineData.trim(), HttpClientLibrary.getPathToResource(url), hostName, getHeaders(headerData), (verboseFlag != null), outputFile);
             } else if (fileFlag != null) {
-                HttpClientLibrary.postFile(HttpClientLibrary.getPathToResource(url), fileFlag.trim(), clientSocket, getHeaders(headerData), (verboseFlag != null), outputFile);
+                HttpClientLibrary.postFile(HttpClientLibrary.getPathToResource(url), fileFlag.trim(), hostName, getHeaders(headerData), (verboseFlag != null), outputFile);
             }
         } else if (getMatcher.find()) {
             String verboseFlag = getMatcher.group(1);
