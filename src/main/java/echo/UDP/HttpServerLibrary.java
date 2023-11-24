@@ -96,7 +96,7 @@ public class HttpServerLibrary {
     }
 
     //    public static void handleRequest(Socket clientSocket, boolean verbose, String msg) {
-    public static String handleRequest(String msg) {
+    public static String handleRequest(String msg) throws IOException {
 //        try (InputStream in = clientSocket.getInputStream();
 //             OutputStream out = clientSocket.getOutputStream();
 //             BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
@@ -154,49 +154,65 @@ public class HttpServerLibrary {
                 } else {
 //                        sendNotFoundResponse(out);
                 }
-            }
-//                else if (requestTokens.length == 3 && requestTokens[0].equals("POST")) {
-//                    String requestedPath = requestTokens[1];
-//                    if (requestedPath.startsWith("/")) {
-//                        String delimiter = "\r\n\r\n";
-//                        int bytesRead;
-//                        StringBuilder receivedData = new StringBuilder();
-//                        char[] buffer = new char[1024]; // Adjust buffer size as needed
-//                        String receivedHeader = null;
-//                        String receivedBody = null;
-//                        while ((bytesRead = reader.read(buffer)) != -1) {
-//                            receivedData.append(buffer, 0, bytesRead);
-//                            // Check if the delimiter has been received
-//                            int delimiterIndex = receivedData.indexOf(delimiter);
-//                            if (delimiterIndex >= 0) {
-//                                // Split data at the delimiter
-//                                receivedHeader = receivedData.substring(0, delimiterIndex);
-//                                receivedBody = receivedData.substring(delimiterIndex + delimiter.length());
-//                                break;
-//                            }
+            } else if (requestTokens.length == 3 && requestTokens[0].equals("POST")) {
+                String requestedPath = requestTokens[1];
+                if (requestedPath.startsWith("/")) {
+                    String delimiter = "\r\n\r\n";
+                    StringBuilder receivedData = new StringBuilder();
+//                    char[] buffer = new char[1024];
+                    String receivedHeader = null;
+                    String receivedBody = null;
+
+                    // Convert the message string to a char array
+                    char[] buffer = msg.toCharArray();
+                    int bytesRead = buffer.length;
+
+                    receivedData.append(buffer, 0, bytesRead);
+//                    while ((bytesRead = reader.read(buffer)) != -1) {
+//                        receivedData.append(buffer, 0, bytesRead);
+//                        // Check if the delimiter has been received
+//                        int delimiterIndex = receivedData.indexOf(delimiter);
+//                        if (delimiterIndex >= 0) {
+//                            // Split data at the delimiter
+//                            receivedHeader = receivedData.substring(0, delimiterIndex);
+//                            receivedBody = receivedData.substring(delimiterIndex + delimiter.length());
+//                            break;
 //                        }
-//                        List<String> headers = getRequestHeaders(receivedHeader);
-//                        String bodyContent = null;
-//                        if (checkIfMultipartFormData(headers)) {
-//                            String boundary = extractBoundaryFromHeader(headers);
-//                            bodyContent = extractBodyContent(boundary, receivedBody);
-//                        } else {
-//                            bodyContent = receivedBody;
-//                        }
-//
-//                        String overwriteOption = getOverwriteOption(headers);
-//                        // Requested file path
-//                        String postTofilePath = serverDirectoryPath + requestedPath;
-//
-//                        if (createOrUpdateFile(postTofilePath, bodyContent, overwriteOption)) {
-//                            sendCreatedResponse(out);
-//                        } else {
-//                            sendForbiddenResponse(out);
-//                        }
-//                    } else {
-//                        sendNotFoundResponse(out);
 //                    }
-//                }
+                    // Check if the delimiter has been received
+                    int delimiterIndex = receivedData.indexOf(delimiter);
+                    if (delimiterIndex >= 0) {
+                        // Split data at the delimiter
+                        receivedHeader = receivedData.substring(0, delimiterIndex);
+                        receivedBody = receivedData.substring(delimiterIndex + delimiter.length());
+                        // Do something with the header and body
+                    }
+                    List<String> headers = getRequestHeaders(receivedHeader);
+                    String bodyContent = null;
+                    if (checkIfMultipartFormData(headers)) {
+                        String boundary = extractBoundaryFromHeader(headers);
+                        bodyContent = extractBodyContent(boundary, receivedBody);
+                    } else {
+                        bodyContent = receivedBody;
+                    }
+
+                    String overwriteOption = getOverwriteOption(headers);
+                    // Requested file path
+                    String postTofilePath = serverDirectoryPath + requestedPath;
+
+                    System.out.println(postTofilePath);
+                    System.out.println(bodyContent);
+                    System.out.println(overwriteOption);
+
+                    if (createOrUpdateFile(postTofilePath, bodyContent, overwriteOption)) {
+//                        sendCreatedResponse(out);
+                    } else {
+//                        sendForbiddenResponse(out);
+                    }
+                } else {
+//                    sendNotFoundResponse(out);
+                }
+            }
         }
 //        } catch (IOException e) {
 //            e.printStackTrace();
@@ -209,16 +225,14 @@ public class HttpServerLibrary {
         // Define a regular expression pattern to match the part before the last '/'
         Pattern pattern = Pattern.compile("(.*/)(.*)");
         Matcher matcher = pattern.matcher(filePath);
-        System.out.println("HEREF: " + filePath);
+//        System.out.println("filepath: " + filePath);
         if (matcher.find()) {
-            System.out.println("HERE2");
             String path = matcher.group(1);
             String fileName = matcher.group(2);
-            System.out.println("path: " + path);
-            System.out.println("fileName: " + fileName);
+//            System.out.println("path: " + path);
+//            System.out.println("fileName: " + fileName);
             List<String> listOfFilesAndFolders = listFilesAndDirectories(path);
             String extension = resolveAcceptHeader(acceptHeader);
-            System.out.println("HERE1");
             if (extension != "") {
                 for (String file : listOfFilesAndFolders) {
                     if (file.startsWith(fileName) && file.endsWith(extension)) {
