@@ -138,7 +138,7 @@ public class UDPClient {
 //
 //        SocketAddress routerAddress = new InetSocketAddress(routerHost, routerPort);
 
-        SocketAddress routerAddress = new InetSocketAddress(serverHost, serverPort);
+        SocketAddress routerAddress = new InetSocketAddress(serverHost, routerPort);
         InetSocketAddress serverAddress = new InetSocketAddress(serverHost, serverPort);
 
         runClient(routerAddress, serverAddress, msg);

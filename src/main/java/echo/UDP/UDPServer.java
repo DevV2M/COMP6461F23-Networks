@@ -58,8 +58,6 @@ public class UDPServer {
                         .create();
                 channel.send(resp.toBuffer(), router);
 
-                /**    **/
-
                 ByteBuffer buffer = ByteBuffer.wrap(HttpServerLibrary.handleRequest(request.toString()).getBytes(StandardCharsets.UTF_8));
 
                 while (buffer.hasRemaining()) {
