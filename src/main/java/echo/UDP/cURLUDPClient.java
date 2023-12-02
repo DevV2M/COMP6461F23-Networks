@@ -49,7 +49,7 @@ public class cURLUDPClient {
     // httpc get -v -h Content-Type:application/json 'http://localhost:8080/
 
     // POST A2
-    // httpc post -v -f ./text.txt http://localhost:8080/postFileTest.txt
+    // httpc post -v -f ./pikachu.txt http://localhost:8080/postFileTest.txt
     // httpc post -v --d 'hello' http://localhost:8080/postFileTest.txt
 
     // Regular expressions for different types of commands
