@@ -37,7 +37,7 @@ public class UDPClient {
 //
 //            logger.info("Sending \"{}\" to router at {}", msg, routerAddr);
     private static final Logger logger = LoggerFactory.getLogger(UDPClient.class);
-    private static final int MAX_PACKET_SIZE = 1024;
+    private static final int MAX_PACKET_SIZE = 1013;
 
     public static void runClient(SocketAddress routerAddr, InetSocketAddress serverAddr, String msg) throws IOException {
         try (DatagramChannel channel = DatagramChannel.open()) {

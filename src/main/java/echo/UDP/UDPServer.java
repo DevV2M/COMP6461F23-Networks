@@ -19,7 +19,7 @@ import static java.util.Arrays.asList;
 public class UDPServer {
 
     private static final Logger logger = LoggerFactory.getLogger(UDPServer.class);
-    private static final int MAX_PACKET_SIZE = 1024;
+    private static final int MAX_PACKET_SIZE = 1013;
 
     private static int sequenceNumberCount = 0;
 
@@ -74,6 +74,9 @@ public class UDPServer {
                             .setPayload(payload).setSequenceNumber(sequenceNumber)
                             .create();
                     channel.send(resp.toBuffer(), router);
+
+                    System.out.println("SIZE: " + resp.toBytes().length);
+
 
 //                    Packet p = new Packet.Builder()
 //                            .setType(0)
