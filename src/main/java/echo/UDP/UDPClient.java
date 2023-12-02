@@ -37,14 +37,19 @@ public class UDPClient {
 //
 //            logger.info("Sending \"{}\" to router at {}", msg, routerAddr);
     private static final Logger logger = LoggerFactory.getLogger(UDPClient.class);
-    private static final int MAX_PACKET_SIZE = 1013;
+    private static final int MAX_PACKET_SIZE = 1000;
 
     public static void runClient(SocketAddress routerAddr, InetSocketAddress serverAddr, String msg) throws IOException {
         try (DatagramChannel channel = DatagramChannel.open()) {
 //            String msg = "Hello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello World";
 
+            String SYN = "SYN=1";
+            ByteBuffer bufferConnect = ByteBuffer.wrap(SYN.getBytes(StandardCharsets.UTF_8));
+
             ByteBuffer buffer = ByteBuffer.wrap(msg.getBytes(StandardCharsets.UTF_8));
 
+
+            // CLIENT SEND
             while (buffer.hasRemaining()) {
                 int remaining = buffer.remaining();
                 int packetSize = Math.min(remaining, MAX_PACKET_SIZE);
@@ -61,6 +66,7 @@ public class UDPClient {
                         .setPeerAddress(serverAddr.getAddress())
                         .setPayload(payload)
                         .create();
+
                 channel.send(p.toBuffer(), routerAddr);
 
                 logger.info("Sending chunk of size {} to router at {}", packetSize, routerAddr);
@@ -84,6 +90,7 @@ public class UDPClient {
             long startTime = System.currentTimeMillis();
             long timeoutMillis = 10000; // Adjust the timeout as needed
 
+            // CLIENT RECEIVE WITHIN TIMEOUT
             while (System.currentTimeMillis() - startTime < timeoutMillis) {
                 selector.select(timeoutMillis);
 
@@ -92,7 +99,7 @@ public class UDPClient {
                     break;
                 }
 
-                // We just want a single response.
+
                 ByteBuffer buf = ByteBuffer.allocate(Packet.MAX_LEN);
                 SocketAddress router = channel.receive(buf);
                 buf.flip();

@@ -335,7 +335,7 @@ public class HttpServerLibrary {
         if ("false".equalsIgnoreCase(overwriteOption) && Files.exists(Paths.get(filePath))) {
             return false;
         }
-
+        
         // Read the content from the request body and write it to the file
         try (FileOutputStream fos = new FileOutputStream(filePath);
              OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
@@ -347,6 +347,8 @@ public class HttpServerLibrary {
                 writer.write(line);
                 writer.newLine();
             }
+        } catch (NullPointerException e) {
+            System.out.println("Content: null");
         }
         return true;
     }

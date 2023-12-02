@@ -33,6 +33,8 @@ public class UDPServer {
                     .order(ByteOrder.BIG_ENDIAN);
 
             for (; ; ) {
+
+                // SERVER RECEIVE
                 StringBuilder request = new StringBuilder();
                 buf.clear();
                 SocketAddress router = channel.receive(buf);
@@ -53,6 +55,7 @@ public class UDPServer {
                 // We can use toBuilder to copy properties of the current packet.
                 // This demonstrate how to create a new packet from an existing packet.
 
+                // BUILD PACKET
                 Packet resp = packet.toBuilder()
                         .setPayload(payloadReceived.getBytes())
                         .create();
@@ -60,6 +63,7 @@ public class UDPServer {
 
                 ByteBuffer buffer = ByteBuffer.wrap(HttpServerLibrary.handleRequest(request.toString()).getBytes(StandardCharsets.UTF_8));
 
+                // SERVER SEND
                 while (buffer.hasRemaining()) {
                     int remaining = buffer.remaining();
                     int packetSize = Math.min(remaining, MAX_PACKET_SIZE);
@@ -73,19 +77,10 @@ public class UDPServer {
                     resp = packet.toBuilder()
                             .setPayload(payload).setSequenceNumber(sequenceNumber)
                             .create();
+
                     channel.send(resp.toBuffer(), router);
 
                     System.out.println("SIZE: " + resp.toBytes().length);
-
-
-//                    Packet p = new Packet.Builder()
-//                            .setType(0)
-//                            .setSequenceNumber(1L)
-//                            .setPortNumber(serverAddr.getPort())
-//                            .setPeerAddress(serverAddr.getAddress())
-//                            .setPayload(payload)
-//                            .create();
-//                    channel.send(p.toBuffer(), router);
 
                     logger.info("Sending chunk of size {} to router at {}", packetSize, router);
                 }
