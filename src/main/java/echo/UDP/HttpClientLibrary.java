@@ -16,6 +16,8 @@ import java.util.regex.Pattern;
 
 public class HttpClientLibrary {
 
+    private static int sequenceNumberCount = 0;
+
     public static void get(String path, String hostName, Map<String, String> headers, boolean verbose, String outputFilePath) {
 
 //        .append(String.format("Host: %s\r\n", socket.getInetAddress().getHostName()));
@@ -157,7 +159,7 @@ public class HttpClientLibrary {
     }
 
     private static String getRequestBodyForPostFile(String filePath, String boundary) throws IOException {
-        System.out.println(filePath);
+//        System.out.println(filePath);
         FileInputStream fis = new FileInputStream(filePath);
         byte[] buffer = new byte[8192];
         int bytesRead;
