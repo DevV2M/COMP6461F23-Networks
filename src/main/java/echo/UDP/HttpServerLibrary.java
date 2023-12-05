@@ -103,7 +103,7 @@ public class HttpServerLibrary {
 //        try {
 
 //            String requestLine = reader.readLine();
-        System.out.println("MESSAGE: " + msg);
+//        System.out.println("MESSAGE: " + msg);
         String requestLine = msg;
         if (requestLine != null) {
 
@@ -123,7 +123,7 @@ public class HttpServerLibrary {
                 String requestedPath = requestTokens[1];
 //                    String acceptHeader = getAcceptHeader(reader).toLowerCase();
                 String acceptHeader = "";
-                System.out.println("Requested Path: " + requestedPath);
+//                System.out.println("Requested Path: " + requestedPath);
                 if (requestedPath.endsWith("/")) {
                     try {
                         List<String> fileList = listFilesAndDirectories(requestedPath);
@@ -135,7 +135,7 @@ public class HttpServerLibrary {
                     }
                 } else if (requestedPath.startsWith("/")) {
                     try {
-                        System.out.println("here");
+//                        System.out.println("here");
                         String filePathWithFileName = getFileNameWithPath(requestedPath, acceptHeader);
 //                        System.out.println("FILENAME: " + filePathWithFileName);
 //                        String filePathWithFileName = requestedPath.substring(1);
@@ -200,9 +200,9 @@ public class HttpServerLibrary {
                     // Requested file path
                     String postTofilePath = serverDirectoryPath + requestedPath;
 
-                    System.out.println(postTofilePath);
-                    System.out.println(bodyContent);
-                    System.out.println(overwriteOption);
+//                    System.out.println(postTofilePath);
+//                    System.out.println(bodyContent);
+//                    System.out.println(overwriteOption);
 
                     if (createOrUpdateFile(postTofilePath, bodyContent, overwriteOption)) {
 //                        sendCreatedResponse(out);
