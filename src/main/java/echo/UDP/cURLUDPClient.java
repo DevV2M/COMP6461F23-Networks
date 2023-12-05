@@ -71,8 +71,7 @@ public class cURLUDPClient {
             String fileFlag = postMatcher.group(4);
             String url = postMatcher.group(5).trim();
             String outputFile = postMatcher.group(6);
-
-            // Socket clientSocket = HttpClientLibrary.getSocket(url);
+            
             URL urlObject = new URL(url);
             String hostName = urlObject.getHost();
 
@@ -86,8 +85,6 @@ public class cURLUDPClient {
             String headerData = getMatcher.group(2);
             String url = getMatcher.group(3).trim();
 
-//            Socket clientSocket = httpUDPLibrary.getSocket(url);
-//            Socket clientSocket = new Socket();
             URL urlObject = new URL(url);
             String hostName = urlObject.getHost();
             String outputFile = getMatcher.group(4);

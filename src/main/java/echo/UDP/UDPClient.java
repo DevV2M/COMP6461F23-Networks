@@ -19,41 +19,18 @@ public class UDPClient {
     private static int sequenceNumberCount = 0;
     private static Set<Integer> acknowledgedPackets = new HashSet<>();
 
-    //    private static final Logger logger = LoggerFactory.getLogger(UDPClient.class);
-//
-//    private static void runClient(SocketAddress routerAddr, InetSocketAddress serverAddr) throws IOException {
-//        try(DatagramChannel channel = DatagramChannel.open()){
-//            String msg = "Hello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello WorldHello World";
-//            Packet p = new Packet.Builder()
-//                    .setType(0)
-//                    .setSequenceNumber(1L)
-//                    .setPortNumber(serverAddr.getPort())
-//                    .setPeerAddress(serverAddr.getAddress())
-//                    .setPayload(msg.getBytes())
-//                    .create();
-//            channel.send(p.toBuffer(), routerAddr);
-//
-//            logger.info("Sending \"{}\" to router at {}", msg, routerAddr);
     private static final Logger logger = LoggerFactory.getLogger(UDPClient.class);
     private static final int MAX_PACKET_SIZE = 1000;
 
     public static void runClient(SocketAddress routerAddr, InetSocketAddress serverAddr, String message) throws IOException {
         try (DatagramChannel channel = DatagramChannel.open()) {
 
-            // CLIENT SEND
-//            send(msg, serverAddr, routerAddr, channel);
-
             performHandshake(channel, message, serverAddr, routerAddr);
 
             // CLIENT SEND
             sendMessageWithSelectiveRepeat(channel, message, serverAddr, routerAddr, 1);
-//            sendMessageWithSelectiveRepeat(channel, message, serverAddr, routerAddr, 0);
 
             receivePackets(channel);
-//            logger.info("All chunks sent to the router");
-//            logger.info("Waiting for response");
-            // CLIENT RECEIVE
-//            receivePackets(channel);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -88,45 +65,12 @@ public class UDPClient {
         // Server address
         String serverHost = (String) opts.valueOf("server-host");
         int serverPort = Integer.parseInt((String) opts.valueOf("server-port"));
-//
-//        SocketAddress routerAddress = new InetSocketAddress(routerHost, routerPort);
 
         SocketAddress routerAddress = new InetSocketAddress(serverHost, routerPort);
         InetSocketAddress serverAddress = new InetSocketAddress(serverHost, serverPort);
 
         runClient(routerAddress, serverAddress, msg);
     }
-
-//    public static boolean send(String msg, InetSocketAddress serverAddr, SocketAddress routerAddr, DatagramChannel channel) {
-//
-//        try {
-//            ByteBuffer buffer = ByteBuffer.wrap(msg.getBytes(StandardCharsets.UTF_8));
-//            while (buffer.hasRemaining()) {
-//                int remaining = buffer.remaining();
-//                int packetSize = Math.min(remaining, MAX_PACKET_SIZE);
-//
-//                byte[] payload = new byte[packetSize];
-//                buffer.get(payload);
-//
-//                int sequenceNumber = sequenceNumberCount;
-//                sequenceNumberCount++;
-//                Packet p = new Packet.Builder()
-//                        .setType(0)
-//                        .setSequenceNumber(sequenceNumber)
-//                        .setPortNumber(serverAddr.getPort())
-//                        .setPeerAddress(serverAddr.getAddress())
-//                        .setPayload(payload)
-//                        .create();
-//
-//                channel.send(p.toBuffer(), routerAddr);
-//
-//                logger.info("Sending chunk of size {} to router at {}", packetSize, routerAddr);
-//            }
-//            return true;
-//        } catch (IOException e) {
-//            return false;
-//        }
-//    }
 
     public static boolean sendPacket(Packet packet, SocketAddress routerAddr, DatagramChannel channel) {
 
@@ -163,11 +107,19 @@ public class UDPClient {
                     .setPayload(payload)
                     .create();
 
-            // Send a message to the server with sequence number
-            sendPacket(p, routerAddr, channel);
+            Packet ackPacket = null;
 
-            // Receive acknowledgment with timeout
-            Packet ackPacket = receivePackets(channel);
+            while (ackPacket == null) {
+                // Send a message to the server with sequence number
+                sendPacket(p, routerAddr, channel);
+
+                // Receive acknowledgment with timeout
+                ackPacket = receivePackets(channel);
+
+                if (ackPacket != null) {
+                    break;
+                }
+            }
 
             // Process acknowledgment
             if (ackPacket != null && ackPacket.getSequenceNumber() == sequenceNumber) {
@@ -178,11 +130,6 @@ public class UDPClient {
             } else {
                 // Retransmit the packet
                 System.out.println("Acknowledgment mismatch. Retransmitting...");
-                retries++;
-                if (retries >= 5) {
-                    System.out.println("Max retries reached. Exiting.");
-                    System.exit(1);
-                }
             }
         }
         Packet p = new Packet.Builder()
@@ -192,21 +139,42 @@ public class UDPClient {
                 .setPeerAddress(serverAddr.getAddress())
                 .setPayload("END".getBytes())
                 .create();
+//        sendPacket(p, routerAddr, channel);
+        Packet ackPacket = null;
+
+        long timeoutMillis = 1000;
+        long startTime = System.currentTimeMillis();
         sendPacket(p, routerAddr, channel);
-        System.out.println("MADE IT");
+        while (ackPacket == null) {
+            // Send a message to the server with sequence number
+            if (System.currentTimeMillis() - startTime > timeoutMillis) {
+                sendPacket(p, routerAddr, channel);
+                startTime = System.currentTimeMillis();
+                break;
+            }
+            // Receive acknowledgment with timeout
+            ackPacket = receivePackets(channel);
+            if (ackPacket != null && ackPacket.getType() == 4) {
+                break;
+            }
+        }
+
+        channel.close();
+        System.exit(0);
     }
 
     public static Packet receivePackets(DatagramChannel channel) {
         try {
             // Set a timeout for receiving packets (in milliseconds)
-            long timeoutMillis = 10000;
+
+            long timeoutMillis = 1000;
             long startTime = System.currentTimeMillis();
 
             // Allocate a ByteBuffer to store incoming data
             ByteBuffer buffer = ByteBuffer.allocate(Packet.MAX_LEN);
 
-            int retries = 0;
             while (System.currentTimeMillis() - startTime < timeoutMillis) {
+                channel.configureBlocking(false);
 
                 // Receive data into the buffer
                 InetSocketAddress router = (InetSocketAddress) channel.receive(buffer);
@@ -224,8 +192,7 @@ public class UDPClient {
                     return resp;
                 }
             }
-            System.out.println("Timeout reached. Exiting...");
-            channel.close(); // Close the channel when done
+//            channel.close(); // Close the channel when done
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -258,8 +225,18 @@ public class UDPClient {
 
             System.out.println("CLIENT SENT CONNECTION REQUEST: SYN PACKET");
             // Step 2: Client receives SYN-ACK from server with timeout
-            Packet synAckPacket = receivePackets(channel);
-
+            Packet synAckPacket = null;
+            long timeoutMillis = 500;
+            long startTime = System.currentTimeMillis();
+            while (synAckPacket == null) {
+                if (System.currentTimeMillis() - startTime < timeoutMillis) {
+                    sendPacket(packet, routerAddr, channel);
+                }
+                synAckPacket = receivePackets(channel);
+            }
+            System.out.println("SYNACK DONE");
+            System.out.println(synAckPacket);
+            if (synAckPacket == null) continue;
             String synAck = new String(synAckPacket.getPayload(), StandardCharsets.UTF_8);
 
             // Process SYN-ACK packet
@@ -268,9 +245,6 @@ public class UDPClient {
                 System.out.println("Received SYN-ACK from server");
 
                 // Step 3: Client sends ACK to server
-//                public static boolean sendPacket(Packet packet, SocketAddress routerAddr, DatagramChannel channel)
-//
-//                sendPacket(clientSocket, InetAddress.getByName("localhost"), 3000, "ACK",1);
 
                 buffer = ByteBuffer.wrap("ACK".getBytes(StandardCharsets.UTF_8));
                 remaining = buffer.remaining();
@@ -302,47 +276,5 @@ public class UDPClient {
             }
         }
     }
-
-
-    /** DO NOT DELETE **/
-//    public void oldReceiveClient(){
-    //            // Try to receive a packet within timeout.
-//            channel.configureBlocking(false);
-//            Selector selector = Selector.open();
-//            channel.register(selector, OP_READ);
-//            logger.info("Waiting for the response");
-//            selector.select(5000);
-//
-//            Set<SelectionKey> keys = selector.selectedKeys();
-//            if (keys.isEmpty()) {
-//                logger.error("No response after timeout");
-//                return;
-//            }
-//
-//            long startTime = System.currentTimeMillis();
-//            long timeoutMillis = 10000; // Adjust the timeout as needed
-//
-//            // CLIENT RECEIVE WITHIN TIMEOUT
-//            while (System.currentTimeMillis() - startTime < timeoutMillis) {
-//                selector.select(timeoutMillis);
-//
-//                if (keys.isEmpty()) {
-//                    logger.info("Timeout reached. No more responses will be received.");
-//                    break;
-//                }
-//
-//
-//                ByteBuffer buf = ByteBuffer.allocate(Packet.MAX_LEN);
-//                SocketAddress router = channel.receive(buf);
-//                buf.flip();
-//                Packet resp = Packet.fromBuffer(buf);
-//                logger.info("Packet: {}", resp);
-//                logger.info("Router: {}", router);
-//                String payload = new String(resp.getPayload(), StandardCharsets.UTF_8);
-//                logger.info("Payload: {}", payload);
-//
-//                keys.clear();
-//            }
-//    }
 }
 
