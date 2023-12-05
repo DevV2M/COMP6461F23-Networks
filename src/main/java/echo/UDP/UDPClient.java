@@ -159,6 +159,7 @@ public class UDPClient {
             }
         }
 
+        System.out.println("END PACKET SENT, CLIENT CLOSE CONN");
         channel.close();
         System.exit(0);
     }
@@ -229,6 +230,7 @@ public class UDPClient {
             long timeoutMillis = 500;
             long startTime = System.currentTimeMillis();
             while (synAckPacket == null) {
+                System.out.println("Time-out retransmitting SYN packet");
                 if (System.currentTimeMillis() - startTime < timeoutMillis) {
                     sendPacket(packet, routerAddr, channel);
                 }

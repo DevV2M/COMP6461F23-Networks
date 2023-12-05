@@ -104,8 +104,8 @@ public class UDPServer {
             } else if (packet != null) { // SERVER RECEIVES HTTP REQUEST
 
                 String clientIdentifier = packet.getPeerAddress() + ":" + packet.getPeerPort();
-                System.out.println("CLIENT: " + clientIdentifier);
-                System.out.println("ACKS: " + clientAcks.get(clientIdentifier));
+//                System.out.println("CLIENT: " + clientIdentifier);
+//                System.out.println("ACKS: " + clientAcks.get(clientIdentifier));
                 Set<Long> acks = clientAcks.get(clientIdentifier);
                 Queue<Packet> packets = clientPackets.get(clientIdentifier);
 
