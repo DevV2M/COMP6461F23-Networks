@@ -171,8 +171,9 @@ public class UDPServer {
 
         String clientIdentifier = synPacket.getPeerAddress() + ":" + synPacket.getPeerPort();
         if (clientPackets.containsKey(clientIdentifier)) {
-            System.out.println(String.format("Handshake failed, client already connected: %s", clientIdentifier));
-            return false;
+//            System.out.println(String.format("Handshake failed, client already connected: %s", clientIdentifier));
+            System.out.println(String.format("SYN PACKET RECEIVED from %s, retransmitting SYN-ACK", clientIdentifier));
+
         }
 
         String packetString = new String(synPacket.getPayload(), StandardCharsets.UTF_8);
