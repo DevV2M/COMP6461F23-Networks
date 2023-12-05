@@ -1,9 +1,11 @@
 /**
  * COMP 6461 - Computer Networks and Protocols
- * Lab Assignment # 2
+ * Lab Assignment # 3
  * Group Members:
  * Vithu Maheswaran - 27052715
  * Shafiq Imtiaz - 40159305
+ * Contribution log:
+ * Vithu : Shafiq - 80 : 30
  */
 
 package echo.UDP;
@@ -72,7 +74,6 @@ public class cURLUDPClient {
             String url = postMatcher.group(5).trim();
             String outputFile = postMatcher.group(6);
 
-            // Socket clientSocket = HttpClientLibrary.getSocket(url);
             URL urlObject = new URL(url);
             String hostName = urlObject.getHost();
 
@@ -86,8 +87,6 @@ public class cURLUDPClient {
             String headerData = getMatcher.group(2);
             String url = getMatcher.group(3).trim();
 
-//            Socket clientSocket = httpUDPLibrary.getSocket(url);
-//            Socket clientSocket = new Socket();
             URL urlObject = new URL(url);
             String hostName = urlObject.getHost();
             String outputFile = getMatcher.group(4);

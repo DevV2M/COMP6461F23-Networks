@@ -1,3 +1,14 @@
+/**
+ * COMP 6461 - Computer Networks and Protocols
+ * Lab Assignment # 3
+ * Group Members:
+ * Vithu Maheswaran - 27052715
+ * Shafiq Imtiaz - 40159305
+ * Contribution log:
+ * Vithu : Shafiq - 80 : 30
+ */
+
+
 package echo.UDP;
 
 import joptsimple.OptionParser;
@@ -37,28 +48,8 @@ public class UDPServer {
         try (DatagramChannel channel = DatagramChannel.open()) {
             channel.bind(new InetSocketAddress(port));
             logger.info("EchoServer is listening at {}", channel.getLocalAddress());
-//            ByteBuffer buf = ByteBuffer
-//                    .allocate(Packet.MAX_LEN)
-//                    .order(ByteOrder.BIG_ENDIAN);
 
-//            StringBuilder request = new StringBuilder();
             for (; ; ) {
-
-//                // SERVER RECEIVE
-//
-//                buf.clear();
-//                SocketAddress router = channel.receive(buf);
-//
-//                // Parse a packet from the received raw data.
-//                buf.flip();
-//                Packet packet = Packet.fromBuffer(buf);
-//                buf.flip();
-//
-//                String payloadReceived = new String(packet.getPayload(), UTF_8);
-//                request.append(payloadReceived);
-//                logger.info("Packet: {}", packet);
-//                logger.info("Payload: {}", payloadReceived);
-//                logger.info("Router: {}", router);
 
                 // Send the response to the router not the client.
                 // The peer address of the packet is the address of the client already.
@@ -66,16 +57,13 @@ public class UDPServer {
                 // This demonstrate how to create a new packet from an existing packet.
 
                 Queue<Packet> packets = receivePackets(channel, router);
+                if (packets == null) continue;
                 String request = requestBuilder(packets);
                 // BUILD PACKET
-//                Packet resp = packet.toBuilder()
-//                        .setPayload(payloadReceived.getBytes())
-//                        .create();
-//                channel.send(resp.toBuffer(), router);
 
                 System.out.println("REQUEST RECEIVED: \n" + request);
                 ByteBuffer buffer = ByteBuffer.wrap(HttpServerLibrary.handleRequest(request.toString()).getBytes(StandardCharsets.UTF_8));
-//
+
                 // SERVER SEND
                 while (buffer.hasRemaining()) {
                     int remaining = buffer.remaining();
@@ -87,10 +75,6 @@ public class UDPServer {
                     int sequenceNumber = sequenceNumberCount % 10;
                     sequenceNumberCount++;
 
-//                    Packet resp = packet.toBuilder()
-//                            .setPayload(payload).setSequenceNumber(sequenceNumber)
-//                            .create();
-
                     Packet resp = packets.peek().toBuilder()
                             .setPayload(payload).setSequenceNumber(sequenceNumber)
                             .create();
@@ -100,8 +84,6 @@ public class UDPServer {
                 }
 
                 logger.info("All chunks sent to the client");
-
-                /**    **/
 
             }
 
@@ -121,12 +103,10 @@ public class UDPServer {
 
     private static Queue<Packet> receivePackets(DatagramChannel channel, SocketAddress router) throws Exception {
 
-
         for (; ; ) {
 
             Packet packet = receivePacket(channel);
 
-            // SERVER RECEIVES SYN
             if (packet != null && packet.getType() == 1) performHandshake(channel, packet, router);
             else if (packet != null && packet.getType() == 4) {
                 String clientIdentifier = packet.getPeerAddress() + ":" + packet.getPeerPort();
@@ -147,7 +127,13 @@ public class UDPServer {
                         .create();
 
                 sendPacket(channel, router, ack);
-                if (!acks.contains(packet.getSequenceNumber())) { //
+                if (acks == null) {
+                    clientAcks.put(clientIdentifier, new HashSet<>());
+                    clientPackets.put(clientIdentifier, new LinkedList<>());
+                    acks = clientAcks.get(clientIdentifier);
+                    packets = clientPackets.get(clientIdentifier);
+                }
+                if (!acks.contains(packet.getSequenceNumber())) {
                     packets.add(packet);
                     acks.add(packet.getSequenceNumber());
                 }
@@ -155,48 +141,6 @@ public class UDPServer {
         }
     }
 
-//    private static Queue<Packet> receivePackets(DatagramChannel channel) throws Exception {
-//        Set<Long> acks = new HashSet<Long>();
-//
-//        Queue<Packet> packets = new LinkedList<>();
-//
-//        ByteBuffer buf = ByteBuffer
-//                .allocate(Packet.MAX_LEN)
-//                .order(ByteOrder.BIG_ENDIAN);
-//
-//        // Set a timeout for receiving packets (in milliseconds)
-//        long timeoutMillis = 10000;
-//        long startTime = System.currentTimeMillis();
-//
-//        for (; ; ) {
-//            if (!packets.isEmpty() && System.currentTimeMillis() - startTime < timeoutMillis) return packets;
-//
-//            // SERVER RECEIVE
-//            buf.clear();
-//            SocketAddress router = channel.receive(buf);
-//
-//
-//            // Parse a packet from the received raw data.
-//            buf.flip();
-//            Packet packet = Packet.fromBuffer(buf);
-//            buf.flip();
-//            if (packet != null) {
-//                if(packet.getType() == 1) performHandshake(channel, packet, router);
-//
-//                ByteBuffer buffer = ByteBuffer.wrap("ACK".getBytes(StandardCharsets.UTF_8));
-//                // SERVER SEND
-//                Packet ack = packet.toBuilder().setType(3)
-//                        .setPayload(buffer.array())
-//                        .create();
-//
-//                sendPacket(channel, router, ack);
-//            }
-//            if (!acks.contains(packet.getSequenceNumber())) {
-//                packets.add(packet);
-//                acks.add(packet.getSequenceNumber());
-//            }
-//        }
-//    }
 
     private static void sendPacket(DatagramChannel channel, SocketAddress router, Packet packet) throws IOException {
 
@@ -234,31 +178,35 @@ public class UDPServer {
             return false;
         }
 
-        // Server sends SYN-ACK to client
-        ByteBuffer buffer = ByteBuffer.wrap("SYN-ACK".getBytes(StandardCharsets.UTF_8));
-        // SERVER SEND
-        Packet synAck = synPacket.toBuilder().setType(1)
-                .setPayload(buffer.array())
-                .create();
-        sendPacket(channel, router, synAck);
+        String packetString = new String(synPacket.getPayload(), StandardCharsets.UTF_8);
+        if (packetString.compareTo("SYN") == 0) {
+            // Save the client socket for future communication
+            clientPackets.putIfAbsent(clientIdentifier, new LinkedList<Packet>());
+            clientAcks.putIfAbsent(clientIdentifier, new HashSet<>());
+
+            // Server sends SYN-ACK to client
+            ByteBuffer buffer = ByteBuffer.wrap("SYN-ACK".getBytes(StandardCharsets.UTF_8));
+            // SERVER SEND
+            Packet synAck = synPacket.toBuilder().setType(1)
+                    .setPayload(buffer.array())
+                    .create();
+
+            sendPacket(channel, router, synAck);
+
+            return true;
+        }
 
         // Step 3: Server receives ACK from client
         Packet ack = receivePacket(channel);
         String ackString = new String(ack.getPayload(), StandardCharsets.UTF_8);
         if (ack != null && ack.getType() == 1 && ackString.compareTo("ACK") == 0) {
             // Save the client socket for future communication
-            clientPackets.put(clientIdentifier, new LinkedList<Packet>());
-            clientAcks.put(clientIdentifier, new HashSet<>());
+            clientPackets.putIfAbsent(clientIdentifier, new LinkedList<Packet>());
+            clientAcks.putIfAbsent(clientIdentifier, new HashSet<>());
             return true;
         }
         return false;
     }
-
-//    private static void receivePacketWithTimeout(DatagramChannel channel, String clientIdentifier, Map<String, Queue<Packet>> clientPackets) {
-//        if(clientPackets.containsKey(clientIdentifier)){
-//            receivePackets(DatagramChannel channel)
-//        }
-//    }
 
     public static void main(String[] args) throws IOException {
         OptionParser parser = new OptionParser();

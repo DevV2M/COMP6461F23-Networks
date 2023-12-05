@@ -1,3 +1,13 @@
+/**
+ * COMP 6461 - Computer Networks and Protocols
+ * Lab Assignment # 3
+ * Group Members:
+ * Vithu Maheswaran - 27052715
+ * Shafiq Imtiaz - 40159305
+ * Contribution log:
+ * Vithu : Shafiq - 80 : 30
+ */
+
 package echo.UDP;
 
 import java.io.IOException;
