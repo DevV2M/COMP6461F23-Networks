@@ -4,15 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="14f04d51-f635-4c72-8949-130c70f1403e" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/echo/UDP/HttpClientLibrary.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/echo/UDP/HttpClientLibrary.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/echo/UDP/HttpServerLibrary.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/echo/UDP/HttpServerLibrary.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/echo/UDP/Packet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/echo/UDP/Packet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/echo/UDP/UDPClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/echo/UDP/UDPClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/echo/UDP/UDPServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/echo/UDP/UDPServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/echo/UDP/cURLUDPClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/echo/UDP/cURLUDPClient.java" afterDir="false" />
-    </list>
+    <list default="true" id="14f04d51-f635-4c72-8949-130c70f1403e" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -82,7 +74,7 @@
       <workItem from="1701489635019" duration="8000" />
       <workItem from="1701489657680" duration="1754000" />
       <workItem from="1701491757059" duration="1614000" />
-      <workItem from="1701740321680" duration="1522000" />
+      <workItem from="1701740321680" duration="1991000" />
     </task>
     <servers />
   </component>

@@ -94,6 +94,11 @@
 - `httpc post -v -f ./pikachu.txt 'http://localhost:8080/postFile.txt'`
 - `httpc post -v --d 'Hello Pikachu' 'http://localhost:8080/postFile.txt'`
 
+# A3 - UDP CLIENT/SERVER
+
+- `httpc get 'http://localhost:8080/text`
+- `httpc post -v -f ./pikachu.txt http://localhost:8080/postFileTest.txt`
+
 ---
 
 ## Using with IDE
